@@ -146,9 +146,11 @@ def grab(label_re, lines):
     return candidates[0]
 
 def parse_decision(text, url):
-    # Normalize: strip markdown bold, any stray HTML tags, nbsp; collapse runs.
+    # Normalize: drop any HTML/meta noise, markdown bold, nbsp; collapse runs.
     t = text.replace("\u00a0", " ")
-    t = re.sub(r'</?(strong|p|br|em|span|div)\s*/?>', ' ', t, flags=re.I)
+    # Remove whole meta/link tags and any other HTML tag entirely.
+    t = re.sub(r'<meta[^>]*>', ' ', t, flags=re.I)
+    t = re.sub(r'<[^>]+>', ' ', t)          # strip every remaining tag
     t = re.sub(r'\*\*', '', t)
     lines = [ln.strip() for ln in t.split("\n") if ln.strip()]
     flat = re.sub(r'\s+', ' ', " ".join(lines))
@@ -158,7 +160,10 @@ def parse_decision(text, url):
         return m.group(1).strip() if m else default
 
     # Address from the Location label, bounded so it can't swallow later fields.
-    address = find(r'Location:\s*(.+?)\s+(?:General Description|Reason For|Tree\(?s?\)?|Number of|Application|$)')
+    address = find(r'Location:\s*(.+?)\s+(?:General Description|Reason For|Tree\(?s?\)?|Number of|Application|Appeals|Date Issued|This is|$)')
+    # Defensive: keep only the first clean segment (addresses are short).
+    if address:
+        address = re.split(r'\s{2,}|["<>]', address)[0].strip()
     if not address:
         m = re.search(r'INTENDED DECISION:\s*([A-Z0-9 ]+?)(?:\s{2,}|This is|Date|$)', flat)
         address = m.group(1).strip() if m else url.rstrip("/").split("/")[-1]
@@ -166,6 +171,8 @@ def parse_decision(text, url):
     issued  = find(r'Date Issued:\s*([0-9/]+)') or find(r'issued\s+([0-9/]{8,10})')
     appeal  = find(r'Appeals Must Be Received By:\s*([0-9/]+)')
     appno   = find(r'Application Number:?\s*([A-Za-z0-9\-]+)')
+    reason  = find(r'Reason For Tree Activity:\s*(.+?)\s+(?:Tree\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)|Number of Replacement|General Description|Trees listed above|Contact details|$)')
+    reason  = re.sub(r'\s*\*+\s*$', '', reason).strip(" .") if reason else ""
 
     # Label-bounded value capture: grab text after a label up to the NEXT label.
     # This is what fixes removals reading 0 and counts landing in wrong columns.
@@ -190,26 +197,61 @@ def parse_decision(text, url):
     m_repl = re.search(r'(?:Number of Replacement Trees?|Replacement Trees?)[^:]*:\s*(.*?)'
                        + NEXT, flat, re.I)
     replace_txt = m_repl.group(1).strip(" .") if m_repl else ""
+    # Drop any trailing footnote marker left from the specimen disclaimer.
+    replace_txt = re.sub(r'\s*\*+\s*$', '', replace_txt).strip(" .")
 
     n_remove   = count_in_phrase(remove_txt)
     n_relocate = count_in_phrase(relocate_txt)
 
-    # Specimen / prohibited: only a number if the page actually uses the word.
-    def explicit_count(keyword, scope_txt):
-        if not scope_txt and keyword not in flat.lower():
+    # Specimen detection. The notices tag specimen trees inline, e.g.
+    # "One(1) Royal Poinciana (specimen)". For a given phrase, count the trees
+    # that carry a (specimen) marker. Returns None ("not stated") only when the
+    # word "specimen" never appears in that phrase at all.
+    def specimen_in_phrase(scope_txt):
+        if not scope_txt or "specimen" not in scope_txt.lower():
             return None
-        for m in re.finditer(r'(\(\d+\)|\b\w+\b)\s+' + keyword, flat, re.I):
-            v = count_in_phrase(m.group(0))
-            if v: return v
-        return None
+        total = 0
+        # Each tree item looks like "<count> <species> (specimen)". Find every
+        # "(specimen)" and attribute the nearest preceding count to it.
+        for m in re.finditer(r'\(\s*specimen[^)]*\)', scope_txt, re.I):
+            # look back from this marker for the closest "(N)" or word-number
+            head = scope_txt[:m.start()]
+            cm = re.findall(r'\((\d+)\)|\b(' + "|".join(WORDNUM) + r')\b',
+                            head, re.I)
+            if cm:
+                last = cm[-1]
+                val = int(last[0]) if last[0] else WORDNUM.get(last[1].lower(), 1)
+                total += val
+            else:
+                total += 1  # a specimen mentioned without an explicit count
+        return total if total else None
 
-    specimen_remove   = explicit_count("specimen", remove_txt)
-    specimen_relocate = explicit_count("specimen", relocate_txt)
-    prohibited        = explicit_count("prohibited", flat)
+    specimen_remove   = specimen_in_phrase(remove_txt)
+    specimen_relocate = specimen_in_phrase(relocate_txt)
+
+    # Prohibited trees: same idea, look for "(prohibited)" markers across the doc.
+    def prohibited_count():
+        if "prohibited" not in flat.lower():
+            return None
+        total = 0
+        for m in re.finditer(r'\(\s*prohibited[^)]*\)', flat, re.I):
+            head = flat[:m.start()]
+            cm = re.findall(r'\((\d+)\)|\b(' + "|".join(WORDNUM) + r')\b',
+                            head, re.I)
+            if cm:
+                last = cm[-1]
+                total += int(last[0]) if last[0] else WORDNUM.get(last[1].lower(), 1)
+            else:
+                total += 1
+        return total if total else None
+
+    prohibited = prohibited_count()
 
     base = n_remove + n_relocate
     spec_known = (specimen_remove or 0) + (specimen_relocate or 0)
     nonspec = base - spec_known if base else 0
+    if nonspec < 0:
+        nonspec = 0
 
     repl_full = replace_txt or "—"
 
@@ -219,6 +261,7 @@ def parse_decision(text, url):
         "appeal": appeal,
         "appno": appno,
         "url": url,
+        "reason": reason or "—",
         "n_remove": n_remove,
         "n_relocate": n_relocate,
         "specimen_remove": specimen_remove,
@@ -273,7 +316,7 @@ def scrape():
             rows.append(parse_decision(fetch(url), url))
         except Exception as e:
             rows.append({"address": url.split("/")[-1], "issued":"", "appeal":"",
-                         "appno":"", "url":url, "n_remove":0, "n_relocate":0,
+                         "appno":"", "url":url, "reason":"—", "n_remove":0, "n_relocate":0,
                          "specimen_remove":None,"specimen_relocate":None,"nonspec":0,
                          "prohibited":None,"replacements":f"(parse error: {e})",
                          "remove_txt":"","relocate_txt":"","prune_txt":""})
@@ -327,6 +370,7 @@ def render(rows):
 <td class="num">{cell(r['specimen_relocate'])}</td>
 <td class="num">{cell(r['nonspec'])}</td>
 <td class="num">{cell(r['prohibited'])}</td>
+<td class="reason">{cell(r['reason'])}</td>
 <td class="repl">{cell(r['replacements'])}</td>
 </tr>""")
     rows_html = "\n".join(body) if body else '<tr><td colspan="10">No decisions found.</td></tr>'
@@ -355,6 +399,7 @@ def render(rows):
  td.addr a {{ color:#0b5e3b; font-weight:600; text-decoration:none; }}
  td.app {{ font-size:0.72rem; color:#888; }}
  td.repl {{ max-width:320px; font-size:0.8rem; }}
+ td.reason {{ max-width:200px; font-size:0.8rem; }}
  tr.red {{ background:var(--red); }}
  tr.red td:first-child {{ border-left:4px solid var(--redb); }}
  tr.yellow {{ background:var(--yel); }}
@@ -382,6 +427,7 @@ specimen/prohibited status). Click an address to open the original notice.</div>
 <th># removal</th><th># relocation</th>
 <th>specimen<br>removal</th><th>specimen<br>relocation</th>
 <th>non-specimen /<br>non-prohibited</th><th>prohibited</th>
+<th>Reason</th>
 <th>Replacements</th>
 </tr></thead>
 <tbody>
