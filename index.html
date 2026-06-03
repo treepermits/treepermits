@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miami Tree-Removal Intended Decisions</title>
+<style>
+ :root { --red:#fdd; --redb:#c0392b; --yel:#fff6cc; --yelb:#caa307; }
+ body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin:0; background:#f5f6f7; color:#1d1f21; }
+ header { background:#0b5e3b; color:#fff; padding:18px 22px; }
+ header h1 { margin:0; font-size:1.25rem; }
+ .bar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px 22px; background:#fff; border-bottom:1px solid #e2e4e6; }
+ button { background:#0b5e3b; color:#fff; border:0; padding:9px 16px; border-radius:6px; font-size:0.95rem; cursor:pointer; }
+ button:hover { background:#0d7049; }
+ .meta { font-size:0.82rem; color:#555; }
+ .legend span { display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.78rem; margin-right:6px; }
+ .lg-red { background:var(--red); border:1px solid var(--redb); }
+ .lg-yel { background:var(--yel); border:1px solid var(--yelb); }
+ .wrap { overflow-x:auto; padding:0 22px 40px; }
+ table { border-collapse:collapse; width:100%; background:#fff; font-size:0.86rem; min-width:1000px; }
+ th, td { border:1px solid #e2e4e6; padding:8px 10px; text-align:left; vertical-align:top; }
+ th { background:#eef1f0; position:sticky; top:0; font-size:0.78rem; }
+ td.num { text-align:center; }
+ td.addr a { color:#0b5e3b; font-weight:600; text-decoration:none; }
+ td.app { font-size:0.72rem; color:#888; }
+ td.repl { max-width:320px; font-size:0.8rem; }
+ tr.red { background:var(--red); }
+ tr.red td:first-child { border-left:4px solid var(--redb); }
+ tr.yellow { background:var(--yel); }
+ tr.yellow td:first-child { border-left:4px solid var(--yelb); }
+ .note { padding:10px 22px; font-size:0.8rem; color:#666; }
+ #spin { display:none; }
+</style></head>
+<body>
+<header><h1>🌳 Miami Tree-Removal Intended Decisions</h1></header>
+<div class="bar">
+  <button onclick="doRefresh()">↻ Refresh</button>
+  <span class="meta">Auto-updated 2026-06-03 17:46:30 UTC &nbsp;•&nbsp; 28 decisions</span>
+  <span class="legend"><span class="lg-red">most trees / specimen</span><span class="lg-yel">second tier</span></span>
+</div>
+<div class="note">Sorted by date posted (newest first). The data is re-scraped automatically
+on a schedule; <b>Refresh</b> loads the latest scraped version (it does not scrape live on
+click). Rows marked <b>pending scrape</b> will fill with real counts on the first scheduled
+run after you deploy. “Specimen”, “relocation”, and “prohibited” counts show <b>not stated</b>
+when the city’s notice doesn’t list them (these pages describe trees in prose and rarely flag
+specimen/prohibited status). Click an address to open the original notice.</div>
+<div class="wrap">
+<table>
+<thead><tr>
+<th>Address</th><th>Date posted</th><th>Appeal by</th>
+<th># removal</th><th># relocation</th>
+<th>specimen<br>removal</th><th>specimen<br>relocation</th>
+<th>non-specimen /<br>non-prohibited</th><th>prohibited</th>
+<th>Replacements</th>
+</tr></thead>
+<tbody>
+<tr class="red">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-4141-NW-5-AV" target="_blank">4141 NW 5 AV</a><div class="app">BD24-027148-001</div></td>
+<td>06/02/2026</td>
+<td>06/12/2026</td>
+<td class="num">5</td>
+<td class="num">0</td>
+<td class="num">not stated</td>
+<td class="num">not stated</td>
+<td class="num">5</td>
+<td class="num">not stated</td>
+<td class="repl">TEN (10) hardwoods, throughout the lot.</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-919-SW-23-RD" target="_blank">919 SW 23 RD</a><div class="app">BD26-000691-001</div></td>
+<td>05/26/2026</td>
+<td>06/05/2026</td>
+<td class="num">1</td>
+<td class="num">0</td>
+<td class="num">not stated</td>
+<td class="num">not stated</td>
+<td class="num">1</td>
+<td class="num">not stated</td>
+<td class="repl">ONE (1) hardwood tree, within lot. [Also ONE (1) Wild Tamarind to be pruned.]</td>
+</tr>
+<tr class="yellow">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-940-NE-72-TER" target="_blank">940 NE 72 TER</a><div class="app">BD25-026099-001</div></td>
+<td>05/26/2026</td>
+<td>06/05/2026</td>
+<td class="num">4</td>
+<td class="num">0</td>
+<td class="num">not stated</td>
+<td class="num">not stated</td>
+<td class="num">4</td>
+<td class="num">not stated</td>
+<td class="repl">THREE (3) hardwood trees, within the lot.</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-4220-NW-3-AV" target="_blank">4220 NW 3 AV</a><div class="app">BD25-023751-001</div></td>
+<td>05/26/2026</td>
+<td>06/05/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-161-NW-29-ST" target="_blank">161 NW 29 ST</a><div class="app">BD25-023434-001</div></td>
+<td>05/26/2026</td>
+<td>06/05/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-111-NW-60-ST" target="_blank">111 NW 60 ST</a><div class="app">BD25-021736-001</div></td>
+<td>05/26/2026</td>
+<td>06/05/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-101-NW-34-ST" target="_blank">101 NW 34 ST</a><div class="app">BD25-029627-001</div></td>
+<td>05/26/2026</td>
+<td>06/10/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-6444-NE-4-AV" target="_blank">6444 NE 4 AV</a><div class="app">BD25-014592-001</div></td>
+<td>05/26/2026</td>
+<td>06/05/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-4200-SW-3-ST" target="_blank">4200 SW 3 ST</a><div class="app">BD23-028821-001</div></td>
+<td>05/26/2026</td>
+<td>06/05/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3312-NW-5-AV" target="_blank">3312 NW 5 AV</a><div class="app">BD25-014567-001</div></td>
+<td>05/26/2026</td>
+<td>06/05/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1352-SW-14-ST" target="_blank">1352 SW 14 ST</a><div class="app">BD26-002775-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1650-SW-22-ST" target="_blank">1650 SW 22 ST</a><div class="app">BD26-002646-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3154-CARTER-ST" target="_blank">3154 CARTER ST</a><div class="app">BD26-001838-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION1233-SW-13-ST" target="_blank">1233 SW 13 ST</a><div class="app">BD25-021995-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-8450-E-DIXIE-HWY" target="_blank">8450 E DIXIE HWY</a><div class="app">BD26-003889-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1906-SW-17-CT" target="_blank">1906 SW 17 CT</a><div class="app">BD26-001438-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION1128-SW-12-ST" target="_blank">1128 SW 12 ST</a><div class="app">BD25-010918-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-220-SW-32-AV" target="_blank">220 SW 32 AV</a><div class="app">BD24-008042-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2001-SW-13-ST" target="_blank">2001 SW 13 ST</a><div class="app">BD25-017513-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-5198-NW-3-AV" target="_blank">5198 NW 3 AV</a><div class="app">BD19-025654-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-4-GROVE-ISLE-DRIVE" target="_blank">4 GROVE ISLE DR</a><div class="app">BD17-014968-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3660-SW-20-ST" target="_blank">3660 SW 20 ST</a><div class="app">26-146</div></td>
+<td>05/19/2026</td>
+<td>06/03/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-6063-NW-1-AV" target="_blank">6063 NW 1 AV</a><div class="app">26-136</div></td>
+<td>05/19/2026</td>
+<td>06/03/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1776-NW-32-ST" target="_blank">1776 NW 32 ST</a><div class="app">26-139</div></td>
+<td>05/19/2026</td>
+<td>06/03/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION3101-GRAND-AV" target="_blank">3101 GRAND AV</a><div class="app">BD25-021627-001</div></td>
+<td>05/19/2026</td>
+<td>05/29/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION55-NE-14-ST" target="_blank">55 NE 14 ST</a><div class="app">26-149</div></td>
+<td>05/19/2026</td>
+<td>06/03/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-444-SW-2-AV" target="_blank">444 SW 2 AV</a><div class="app">BD25-000822-001</div></td>
+<td>05/19/2026</td>
+<td>06/03/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+<tr class="">
+<td class="addr"><a href="https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION5215-NE-7-AV" target="_blank">5215 NE 7 AV</a><div class="app">BD23-006209-001</div></td>
+<td>05/19/2026</td>
+<td>06/03/2026</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="num">pending scrape</td>
+<td class="repl">pending scrape</td>
+</tr>
+</tbody></table>
+</div>
+<script>
+// On GitHub Pages there is no backend, so Refresh reloads the latest
+// auto-scraped page, bypassing the browser cache.
+function doRefresh() {
+  location.reload(true);
+}
+</script>
+</body></html>
