@@ -282,20 +282,28 @@ def scrape():
     return rows
 
 # ---------------------------------------------------------------------------
-# Highlight tiers: rank by (total trees touched, specimen count).
-# Top tier -> red, second tier -> yellow, rest -> none.
+# Highlight tiers by absolute tree count (removals + relocations):
+#   total >= 15  -> red
+#   8 <= total <= 14 -> yellow
+#   else -> no highlight
+# Counts that are non-numeric (e.g. "pending scrape") are treated as 0.
 # ---------------------------------------------------------------------------
+RED_THRESHOLD = 15
+YELLOW_THRESHOLD = 8
+
 def assign_tiers(rows):
-    def score(r):
-        total = r["n_remove"] + r["n_relocate"]
-        spec = (r["specimen_remove"] or 0) + (r["specimen_relocate"] or 0)
-        return (total, spec)
-    scored = sorted({score(r) for r in rows}, reverse=True)
-    red = set(scored[:1]) if scored else set()
-    yellow = set(scored[1:2]) if len(scored) > 1 else set()
+    def total_trees(r):
+        rm = r["n_remove"] if isinstance(r["n_remove"], int) else 0
+        rl = r["n_relocate"] if isinstance(r["n_relocate"], int) else 0
+        return rm + rl
     for r in rows:
-        s = score(r)
-        r["tier"] = "red" if s in red else ("yellow" if s in yellow else "")
+        t = total_trees(r)
+        if t >= RED_THRESHOLD:
+            r["tier"] = "red"
+        elif t >= YELLOW_THRESHOLD:
+            r["tier"] = "yellow"
+        else:
+            r["tier"] = ""
     return rows
 
 # ---------------------------------------------------------------------------
@@ -359,7 +367,7 @@ def render(rows):
 <div class="bar">
   <button onclick="doRefresh()">↻ Refresh</button>
   <span class="meta">Auto-updated {ts} UTC &nbsp;•&nbsp; {len(rows)} decisions</span>
-  <span class="legend"><span class="lg-red">most trees / specimen</span><span class="lg-yel">second tier</span></span>
+  <span class="legend"><span class="lg-red">15+ trees</span><span class="lg-yel">8–14 trees</span></span>
 </div>
 <div class="note">Sorted by date posted (newest first). The data is re-scraped automatically
 on a schedule; <b>Refresh</b> loads the latest scraped version (it does not scrape live on
