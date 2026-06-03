@@ -146,61 +146,67 @@ def grab(label_re, lines):
     return candidates[0]
 
 def parse_decision(text, url):
-    # Normalize: bold markers, nbsp, collapse spaces
+    # Normalize: strip markdown bold, any stray HTML tags, nbsp; collapse runs.
     t = text.replace("\u00a0", " ")
+    t = re.sub(r'</?(strong|p|br|em|span|div)\s*/?>', ' ', t, flags=re.I)
     t = re.sub(r'\*\*', '', t)
     lines = [ln.strip() for ln in t.split("\n") if ln.strip()]
-    flat = " ".join(lines)
+    flat = re.sub(r'\s+', ' ', " ".join(lines))
 
     def find(pat, default=""):
         m = re.search(pat, flat, re.I)
         return m.group(1).strip() if m else default
 
-    # Address: prefer the Location field, captured only up to the end of that
-    # line (we search per-line so we don't swallow following fields).
-    address = ""
-    for ln in lines:
-        m = re.match(r'Location:\s*(.+)$', ln, re.I)
-        if m:
-            address = m.group(1).strip()
-            break
+    # Address from the Location label, bounded so it can't swallow later fields.
+    address = find(r'Location:\s*(.+?)\s+(?:General Description|Reason For|Tree\(?s?\)?|Number of|Application|$)')
     if not address:
-        m = re.search(r'INTENDED DECISION:\s*([A-Z0-9 ]+?)(?:\s{2,}|This is|$)', flat)
+        m = re.search(r'INTENDED DECISION:\s*([A-Z0-9 ]+?)(?:\s{2,}|This is|Date|$)', flat)
         address = m.group(1).strip() if m else url.rstrip("/").split("/")[-1]
 
     issued  = find(r'Date Issued:\s*([0-9/]+)') or find(r'issued\s+([0-9/]{8,10})')
-    appeal  = find(r'Appeals Must Be Received By:\s*([0-9/]+)') \
-              or find(r'Appeals must be received by:\s*([0-9/]+)')
+    appeal  = find(r'Appeals Must Be Received By:\s*([0-9/]+)')
     appno   = find(r'Application Number:?\s*([A-Za-z0-9\-]+)')
 
-    remove_txt   = grab(REMOVE_RE, lines)
-    relocate_txt = grab(RELOCATE_RE, lines)
-    prune_txt    = grab(PRUNE_RE, lines)
-    replace_txt  = grab(REPLACE_RE, lines)
+    # Label-bounded value capture: grab text after a label up to the NEXT label.
+    # This is what fixes removals reading 0 and counts landing in wrong columns.
+    NEXT = (r'(?=\s*(?:Tree\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)\s+'
+            r'(?:Removed|Relocated|Pruned|Transplanted)|'
+            r'Number of Replacement|Replacement Tree|Reason For|'
+            r'General Description|Trees listed above|Contact|$))')
+
+    def field_value(action):
+        # action e.g. r'Removed', r'Relocated', r'Pruned'
+        # Tolerates "Tree(s) To Be Removed & Location:", "Tree (s) to be removed
+        # and locations (s):", extra spaces, and varied casing.
+        pat = (r'Tree\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)\s+' + action +
+               r'[^:]*:\s*(.*?)' + NEXT)
+        m = re.search(pat, flat, re.I)
+        return m.group(1).strip(" .") if m else ""
+
+    remove_txt   = field_value(r'Removed')
+    relocate_txt = field_value(r'(?:Relocated|Transplanted)')
+    prune_txt    = field_value(r'Pruned')
+
+    m_repl = re.search(r'(?:Number of Replacement Trees?|Replacement Trees?)[^:]*:\s*(.*?)'
+                       + NEXT, flat, re.I)
+    replace_txt = m_repl.group(1).strip(" .") if m_repl else ""
 
     n_remove   = count_in_phrase(remove_txt)
     n_relocate = count_in_phrase(relocate_txt)
 
-    # Specimen / prohibited: only report a number if the page actually uses
-    # the words. Otherwise "not stated" (per user's choice).
+    # Specimen / prohibited: only a number if the page actually uses the word.
     def explicit_count(keyword, scope_txt):
-        # e.g. "TWO (2) specimen" or "specimen ... (2)"
         if not scope_txt and keyword not in flat.lower():
             return None
-        # search whole doc near the keyword
-        for m in re.finditer(r'(\b\w+\b|\(\d+\))\s+' + keyword, flat, re.I):
+        for m in re.finditer(r'(\(\d+\)|\b\w+\b)\s+' + keyword, flat, re.I):
             v = count_in_phrase(m.group(0))
             if v: return v
-        # if keyword appears but no count, treat as present-but-unspecified
         return None
 
     specimen_remove   = explicit_count("specimen", remove_txt)
     specimen_relocate = explicit_count("specimen", relocate_txt)
     prohibited        = explicit_count("prohibited", flat)
 
-    # non-specimen & non-prohibited (removal+relocation): the city says any tree
-    # not flagged specimen is non-specimen. With no specimen flags, this equals
-    # all removals+relocations. If specimen counts are known, subtract them.
     base = n_remove + n_relocate
     spec_known = (specimen_remove or 0) + (specimen_relocate or 0)
     nonspec = base - spec_known if base else 0
@@ -215,10 +221,10 @@ def parse_decision(text, url):
         "url": url,
         "n_remove": n_remove,
         "n_relocate": n_relocate,
-        "specimen_remove": specimen_remove,     # None => not stated
-        "specimen_relocate": specimen_relocate, # None => not stated
+        "specimen_remove": specimen_remove,
+        "specimen_relocate": specimen_relocate,
         "nonspec": nonspec,
-        "prohibited": prohibited,               # None => not stated
+        "prohibited": prohibited,
         "replacements": repl_full,
         "remove_txt": remove_txt or "—",
         "relocate_txt": relocate_txt or "—",
@@ -229,13 +235,24 @@ def get_decision_links(index_html):
     from bs4 import BeautifulSoup
     soup = BeautifulSoup(index_html, "html.parser")
     seen, links = set(), []
+    # A real decision page lives under the tree-permitting section and its final
+    # path segment starts with "INTENDED-DECISION" followed by an address.
+    # This excludes the glossary ("/Glossary/Intended-Decision"), the
+    # "Appeal-an-Intended-Decision-Trees" help page, and the listing page itself.
     for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if "INTENDED-DECISION" in href.upper():
-            full = href if href.startswith("http") else BASE + href
-            full = full.split("?")[0]
-            if full not in seen:
-                seen.add(full); links.append(full)
+        href = a["href"].split("?")[0].split("#")[0]
+        full = href if href.startswith("http") else BASE + href
+        if "View-Intended-Decisions-Posted-for-Tree-Permitting/" not in full:
+            continue
+        slug = full.rstrip("/").split("/")[-1]
+        if not slug.upper().startswith("INTENDED-DECISION"):
+            continue
+        # require something after the INTENDED-DECISION prefix (an address)
+        tail = re.sub(r'^INTENDED-?DECISION-?', '', slug, flags=re.I)
+        if len(tail) < 3:
+            continue
+        if full not in seen:
+            seen.add(full); links.append(full)
     return links
 
 # ---------------------------------------------------------------------------
