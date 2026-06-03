@@ -1,26 +1,19 @@
-name: Scrape Miami tree decisions and publish
+name: Scrape Miami tree decisions
 
 on:
   schedule:
-    # Runs at 11:00 and 23:00 UTC daily (~7am & 7pm Miami time).
-    # Adjust or add lines as you like. Cron is in UTC.
+    # Times are UTC. ~7am and ~7pm Miami time.
     - cron: "0 11 * * *"
     - cron: "0 23 * * *"
-  workflow_dispatch:        # lets you run it manually from the Actions tab
+  workflow_dispatch:        # manual "Run workflow" button
   push:
-    branches: [ main ]      # also rebuild when you push changes
+    branches: [ main ]      # rebuild when you push changes
 
 permissions:
-  contents: write           # to commit the regenerated docs/index.html
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: write           # allows committing the regenerated docs/index.html
 
 jobs:
-  build:
+  scrape:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,32 +26,26 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Headless browser fallback for when the city blocks plain requests:
           python -m playwright install --with-deps chromium
 
       - name: Run scraper (writes docs/index.html)
         run: python build_site.py
 
+      - name: Show what was generated (for debugging)
+        run: |
+          echo "=== first 25 lines of docs/index.html ==="
+          head -n 25 docs/index.html
+          echo "=== row count ==="
+          grep -c '<tr class' docs/index.html || true
+
       - name: Commit updated page
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/index.html
-          git commit -m "Auto-update tree decisions ($(date -u +'%Y-%m-%d %H:%M UTC'))" || echo "No changes to commit"
-          git push || echo "Nothing to push"
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git add -f docs/index.html
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-update tree decisions ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git push
+          fi
