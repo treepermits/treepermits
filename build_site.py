@@ -129,39 +129,51 @@ def count_in_phrase(phrase):
 def split_palm_tree(phrase):
     """
     Parse a removal/relocation phrase into (n_palms, n_trees).
-    Each item looks like "COUNT(N) SPECIES" or "N SPECIES".
-    Returns (palms, non-palms). Unknown species go to non-palm.
+    Handles comma-separated AND space-only-separated items like:
+    "ONE (1) Live Oak (specimen) ONE (1) Mango within the property"
     """
     if not phrase:
         return 0, 0
+
+    # Normalise: insert a sentinel | before each new item boundary.
+    # A new item starts when a word-number + (N) pattern follows a non-start position.
+    # Use (?<=[\w)]) to also catch boundaries after closing parens like "(specimen)".
+    word_nums = "|".join(WORDNUM.keys())
+    normalised = re.sub(
+        r'(?<=[\w)])\s+(?=(?:' + word_nums + r')\s*\(\d+\)|(?:' + word_nums + r')\s+\d)',
+        '|', phrase, flags=re.I)
+    # Also split on commas/semicolons or contextual separators like "neighbors".
+    normalised = re.sub(r'[,;]|\bneighbors?\b', '|', normalised, flags=re.I)
+    items = [i.strip() for i in normalised.split('|') if i.strip()]
+
     palms = 0
     trees = 0
-    # Split on commas or semicolons to get individual items.
-    # Each item: optional WORD (N) or (N) or bare N, then species words.
-    items = re.split(r'[,;]', phrase)
     for item in items:
-        item = item.strip()
-        if not item:
-            continue
-        # Extract count: prefer parenthetical (N), then leading word-number/digit.
+        # Extract count: prefer parenthetical (N).
         cnt_m = re.search(r'\((\d+)\)', item)
         if cnt_m:
             cnt = int(cnt_m.group(1))
         else:
-            cnt_m2 = re.match(r'^\s*(?:([A-Za-z]+)\s*)?\(?(\d+)\)?', item)
-            if cnt_m2:
-                tok = (cnt_m2.group(1) or "").lower()
-                cnt = WORDNUM.get(tok, 0) or int(cnt_m2.group(2))
-            else:
-                cnt = 1
-        # Species name = everything after the count expression, up to a period or location keyword.
+            # Try leading word-number.
+            cnt_m2 = re.match(r'^\s*(' + word_nums + r')\b', item, re.I)
+            cnt = WORDNUM.get(cnt_m2.group(1).lower(), 1) if cnt_m2 else 1
+
+        # Species: everything after the count expression, strip location/condition words.
         species = re.sub(r'\(?\d+\)?', '', item)
-        species = re.sub(r'\b(?:located|within|throughout|at|in|near|along|on|the|right|of|way|lot|property|construction|footprint|building|envelope|site)\b.*', '', species, flags=re.I)
+        species = re.sub(
+            r'\b(?:located|within|throughout|at|in|near|along|on|the|right|of|way|'
+            r'lot|property|construction|footprint|building|envelope|site|'
+            r'poor|condition|adjacent|nearby)\b.*', '',
+            species, flags=re.I)
         species = re.sub(r'[^A-Za-z\s]', ' ', species).strip()
+        # Remove word-number tokens from species name.
+        species = re.sub(r'\b(?:' + word_nums + r')\b', '', species, flags=re.I).strip()
+
         if is_palm(species):
             palms += cnt
         else:
             trees += cnt
+
     return palms, trees
 
 def specimen_in_phrase(scope_txt):
@@ -333,7 +345,7 @@ def assign_tiers(rows):
             r["tier"] = "red"
         elif (5 <= tr <= 7) or (trl >= 7 and tr > 0):
             r["tier"] = "orange"
-        elif trl >= 5 or pr >= 7:
+        elif trl >= 5 or pr >= 7 or (tr + trl + pr + r["palms_relocate"]) > 4 or (r["specimen_remove"] or 0) + (r["specimen_relocate"] or 0) > 0:
             r["tier"] = "yellow"
         else:
             r["tier"] = ""
@@ -604,13 +616,16 @@ function applySheetData() {{
 }}
 
 // ── Tier logic (mirrors Python) ────────────────────────────────────────────
-function tierFor(tr, trl, pr) {{
-  tr  = parseInt(tr)  || 0;
-  trl = parseInt(trl) || 0;
-  pr  = parseInt(pr)  || 0;
-  if (tr >= 8)                          return 'red';
+function tierFor(tr, trl, pr, prl, specRm, specRl) {{
+  tr     = parseInt(tr)     || 0;
+  trl    = parseInt(trl)    || 0;
+  pr     = parseInt(pr)     || 0;
+  prl    = parseInt(prl)    || 0;
+  specRm = parseInt(specRm) || 0;
+  specRl = parseInt(specRl) || 0;
+  if (tr >= 8) return 'red';
   if ((tr >= 5 && tr <= 7) || (trl >= 7 && tr > 0)) return 'orange';
-  if (trl >= 5 || pr >= 7)              return 'yellow';
+  if (trl >= 5 || pr >= 7 || (tr + trl + pr + prl) > 4 || (specRm + specRl) > 0) return 'yellow';
   return '';
 }}
 
@@ -628,7 +643,7 @@ function injectManualRows() {{
 
   // Build new TR elements for manual rows.
   manualRows.forEach(d => {{
-    const tier = tierFor(d.trees_remove, d.trees_relocate, d.palms_remove);
+    const tier = tierFor(d.trees_remove, d.trees_relocate, d.palms_remove, d.palms_relocate, d.spec_remove, d.spec_relocate);
     const appno_esc = d.appno.replace(/'/g, "\\'");
     const tr = document.createElement('tr');
     tr.className = tier;
