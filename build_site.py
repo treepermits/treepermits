@@ -479,7 +479,7 @@ def render(rows):
   <span class="legend">
     <span class="lg-red">tree removal 8+</span>
     <span class="lg-org">tree removal 5–7 or relocation 7+ (w/ removals)</span>
-    <span class="lg-yel">relocation 5+ or palm removal 7+</span>
+    <span class="lg-yel">relocation 5+ or specimen or palm removal 7+</span>
   </span>
 </div>
 <div class="gs-banner" id="gs-banner">
