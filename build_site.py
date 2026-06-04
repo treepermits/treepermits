@@ -361,7 +361,7 @@ def render(rows):
         except Exception:
             active.append(r)   # unknown date stays on main tab
 
-    def build_rows(rlist, include_hearing=False):
+    def build_rows(rlist, include_hearing=False, include_wip=True):
         out = []
         for r in rlist:
             cls = r.get("tier","")
@@ -372,38 +372,50 @@ def render(rows):
                 f'<input type="text" placeholder="add date…" onchange="saveField(this,\'hearing\',\'{appno_js}\')">'
                 f'</td>'
             ) if include_hearing else ""
+            wip_cell = (
+                f'<td class="manual" data-field="appeal_wip" data-key="{appno_js}">'
+                f'<span class="val"></span>'
+                f'<input type="text" placeholder="add note…" onchange="saveField(this,\'appeal_wip\',\'{appno_js}\')">'
+                f'</td>'
+            ) if include_wip else ""
+            col_count = 12 + (1 if include_wip else 0) + (1 if include_hearing else 0)
             out.append(f"""<tr class="{cls}" data-appno="{appno_js}">
 <td class="addr"><a href="{html.escape(r['url'])}" target="_blank">{cell(r['address'])}</a><div class="app">{cell(r['appno'])}</div></td>
 <td>{cell(r['issued'])}</td>
 <td>{cell(r['appeal'])}</td>
 <td class="num">{cell(r['trees_remove'])}</td>
-<td class="num">{cell(r['palms_remove'])}</td>
 <td class="num">{cell(r['trees_relocate'])}</td>
+<td class="num">{cell(r['palms_remove'])}</td>
 <td class="num">{cell(r['palms_relocate'])}</td>
 <td class="num">{cell(r['specimen_remove'])}</td>
 <td class="num">{cell(r['specimen_relocate'])}</td>
 <td class="num">{cell(r['prohibited'])}</td>
 <td class="reason">{cell(r['reason'])}</td>
 <td class="repl">{cell(r['replacements'])}</td>
-<td class="manual" data-field="appeal_wip" data-key="{appno_js}"><span class="val"></span><input type="text" placeholder="add note…" onchange="saveField(this,'appeal_wip','{appno_js}')"></td>
+{wip_cell}
 {hearing_cell}
 </tr>""")
         if not out:
-            cols = 15 if include_hearing else 14
-            out.append(f'<tr><td colspan="{cols}" style="text-align:center;color:#888;padding:24px">No decisions in this tab.</td></tr>')
+            col_count = 12 + (1 if include_wip else 0) + (1 if include_hearing else 0)
+            out.append(f'<tr><td colspan="{col_count}" style="text-align:center;color:#888;padding:24px">No decisions in this tab.</td></tr>')
         return "\n".join(out)
 
-    active_rows  = build_rows(active,  include_hearing=False)
-    expired_rows = build_rows(expired, include_hearing=True)
+    active_rows  = build_rows(active,  include_hearing=False, include_wip=True)
+    expired_rows = build_rows(expired, include_hearing=True,  include_wip=False)
 
     active_hdrs = """<th>Address</th><th>Date posted</th><th>Appeal by</th>
-<th># tree<br>removal</th><th># palm<br>removal</th>
-<th># tree<br>relocation</th><th># palm<br>relocation</th>
+<th># tree<br>removal</th><th># tree<br>relocation</th>
+<th># palm<br>removal</th><th># palm<br>relocation</th>
 <th>specimen<br>removal</th><th>specimen<br>relocation</th>
 <th>prohibited</th><th>Reason</th><th>Replacements</th>
 <th>Appeal in<br>the works</th>"""
 
-    expired_hdrs = active_hdrs + "<th>Appeal submitted –<br>date of hearing</th>"
+    expired_hdrs = """<th>Address</th><th>Date posted</th><th>Appeal by</th>
+<th># tree<br>removal</th><th># tree<br>relocation</th>
+<th># palm<br>removal</th><th># palm<br>relocation</th>
+<th>specimen<br>removal</th><th>specimen<br>relocation</th>
+<th>prohibited</th><th>Reason</th><th>Replacements</th>
+<th>Appeal submitted –<br>date of hearing</th>"""
 
     return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
@@ -448,7 +460,7 @@ def render(rows):
  .gs-banner a{{color:#0b5e3b}}
 </style></head>
 <body>
-<header><h1>🌳 Miami Tree-Removal Intended Decisions</h1></header>
+<header><h1>🌳 Miami Tree Removal Intended Decisions</h1></header>
 <div class="bar">
   <button onclick="location.reload(true)">↻ Refresh</button>
   <span class="meta">Auto-updated {ts} UTC &nbsp;•&nbsp; {len(active)} active &nbsp;•&nbsp; {len(expired)} expired</span>
@@ -465,7 +477,7 @@ def render(rows):
 </div>
 <div class="tabs">
   <div class="tab active" onclick="switchTab('active',this)">Active decisions ({len(active)})</div>
-  <div class="tab" onclick="switchTab('expired',this)">Expired appeals ({len(expired)})</div>
+  <div class="tab" onclick="switchTab('expired',this)">Expired decisions ({len(expired)})</div>
 </div>
 
 <div id="pane-active" class="pane active">
@@ -627,19 +639,14 @@ function injectManualRows() {{
 <td>${{d.issued || '—'}}</td>
 <td>${{d.appeal || '—'}}</td>
 <td class="num">${{d.trees_remove || '—'}}</td>
-<td class="num">${{d.palms_remove || '—'}}</td>
 <td class="num">${{d.trees_relocate || '—'}}</td>
+<td class="num">${{d.palms_remove || '—'}}</td>
 <td class="num">${{d.palms_relocate || '—'}}</td>
 <td class="num">${{d.spec_remove || 'not stated'}}</td>
 <td class="num">${{d.spec_relocate || 'not stated'}}</td>
 <td class="num">${{d.prohibited || 'not stated'}}</td>
 <td class="reason">${{d.reason || '—'}}</td>
 <td class="repl">${{d.replacements || '—'}}</td>
-<td class="manual" data-field="appeal_wip" data-key="${{appno_esc}}">
-  <span class="val">${{d.appeal_wip}}</span>
-  <input type="text" placeholder="add note…" value="${{d.appeal_wip}}"
-    onchange="saveField(this,'appeal_wip','${{appno_esc}}')">
-</td>
 <td class="manual" data-field="hearing" data-key="${{appno_esc}}">
   <span class="val">${{d.hearing}}</span>
   <input type="text" placeholder="add date…" value="${{d.hearing}}"
@@ -662,7 +669,7 @@ function injectManualRows() {{
 
   // Update tab count label.
   const tab = document.querySelector('.tab:nth-child(2)');
-  if (tab) tab.textContent = `Expired appeals (${{existing.length}})`;
+  if (tab) tab.textContent = `Expired decisions (${{existing.length}})`;
 }}
 
 // ── Save field (prompt to update Sheet) ────────────────────────────────────
