@@ -451,7 +451,7 @@ def render(rows):
  .lg-red{{background:var(--red);border:1px solid var(--redb)}}
  .lg-org{{background:var(--org);border:1px solid var(--orgb)}}
  .lg-yel{{background:var(--yel);border:1px solid var(--yelb)}}
- .wrap{{overflow-x:auto;padding:0 22px 40px}}
+ .wrap{{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 160px);padding:0 22px 40px}}
  table{{border-collapse:collapse;width:100%;background:#fff;font-size:.84rem;min-width:1100px}}
  th,td{{border:1px solid #e2e4e6;padding:7px 9px;text-align:left;vertical-align:top}}
  th{{background:#eef1f0;position:sticky;top:0;font-size:.76rem;white-space:nowrap}}
