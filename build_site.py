@@ -501,7 +501,7 @@ def render(ts, n_total):
 </table></div></div>
 
 <div id="pane-expired" class="pane">
-<div class="note">Appeal deadline has passed. Rows stay here permanently.</div>
+<div class="note">Appeal deadline has passed. Rows stay here permanently. Records starting June 2026.</div>
 <div class="wrap"><table>
 <thead><tr>
 <th>Address</th><th>Date posted</th><th>Appeal by</th>
@@ -584,20 +584,23 @@ def render(ts, n_total):
           When you save the screenshot, name the file "[TODAY'S DATE] – [property address] – 500ft radius".</li>
         <li>Use another icon to download the excel file with mailing addresses of people within the 500ft radius.<br>
           <img src="step4-download.png" alt="Download icon screenshot" style="max-width:100%;margin:8px 0;border-radius:4px;border:1px solid #e2e4e6"></li>
-        <li>Copy appropriate columns into this template:
-          <table class="template-table" style="font-size:.72rem">
+        <li>Copy appropriate columns into this template. Here is how:<br>
+          <img src="step4-copy-columns.png" alt="How to copy columns into the template" style="max-width:100%;margin:8px 0;border-radius:4px;border:1px solid #e2e4e6">
+          <div style="overflow-x:auto">
+          <table class="template-table" style="font-size:.72rem;min-width:520px">
             <thead><tr><th>Owner Name</th><th>Mailing Street Address</th><th>City</th><th>State</th><th>Zip</th><th>Country</th><th>Folio #</th></tr></thead>
             <tbody>
               <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
               <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
             </tbody>
           </table>
+          </div>
           Do not add, re-arrange, or delete any columns. Use only the seven (7) columns shown: 1) Owner Name 2) Mailing Address 3) City 4) State 5) Zip Code 6) Country 7) Folio Number.
         </li>
-        <li>Make sure there are no duplicates, no empty lines. Make sure one owner does not have several mailing addresses (only keep one). Also, if you see a long list of addresses with apartment numbers, you must find out the name of the condominium building or co-op, delete them all and replace with ONLY one line for Condominium Association and one mailing address.<br><br>
-          The number of lines will determine the final price of your appeal, because you are responsible for paying to notify them all by mail about your appeal.
+        <li>Remove duplicates and empty lines. If one owner has multiple addresses, keep only one. If you see a long list of addresses with apartment numbers for a condo building, replace them all with one line for the Condominium Association and one mailing address.<br><br>
+          The number of lines determines the final price of your appeal — you are responsible for notifying each owner by mail.
         </li>
-        <li>Save the file in the excel (!) format with date in the name: "[TODAY'S DATE] – [property address] – list of owners 500ft radius"</li>
+        <li>Save as Excel format: <code>[TODAY'S DATE] – [property address] – list of owners 500ft radius</code></li>
       </ol>
     </div>
   </div>
