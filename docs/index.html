@@ -70,11 +70,11 @@
 <body>
 <header>
   <h1>🌳 Miami Tree Removal Intended Decisions</h1>
-  <button class="appeal-btn" onclick="switchTab('appeal',this)">❓ How to appeal tree removal decision?</button>
+  <button class="appeal-btn" onclick="switchTab('appeal',this)">❓ How to appeal a tree removal decision?</button>
 </header>
 <div class="bar">
   <button onclick="location.reload(true)">↻ Refresh</button>
-  <span class="meta">Data updated 2026-06-07 04:42:27 UTC &nbsp;•&nbsp; 17 decisions on record</span>
+  <span class="meta">Data updated 2026-06-07 05:01:15 UTC &nbsp;•&nbsp; 17 decisions on record</span>
   <span class="legend">
     <span class="lg-red">tree removal 8+</span>
     <span class="lg-org">tree removal 5–7 or relocation 7+ (w/ removals)</span>
@@ -167,7 +167,7 @@
     <div class="step-title">Pay the fees</div>
   </div>
   <div class="step-body">
-    On the invoice you received there is a number. Go to <a href="https://www.miami.gov/Permits-Construction/Make-a-Payment-to-the-City-of-Miami" target="_blank">miami.gov/make-a-payment</a>, enter your invoice number, and pay the fees.<br><br>
+    There is a number on the invoice you received. Go to <a href="https://www.miami.gov/Permits-Construction/Make-a-Payment-to-the-City-of-Miami" target="_blank">miami.gov/make-a-payment</a>, enter your invoice number, and pay the fees.<br><br>
     <strong>Save the receipt!</strong> You will need to submit it later.
   </div>
 </div>
@@ -175,27 +175,35 @@
 <div class="step">
   <div class="step-header">
     <div class="step-num">4</div>
-    <div class="step-title">Download the list of residents within 500ft</div>
+    <div class="step-title">Download the screenshot of radius and the list of residents within 500ft</div>
   </div>
   <div class="step-body">
     <span class="collapsible-trigger" onclick="toggleCollapsible(this)">▶ Show step-by-step instructions</span>
     <div class="collapsible-content">
       <ol>
-        <li>Open <a href="https://gis.miami.gov/miamizoning/main" target="_blank">gis.miami.gov/miamizoning/main</a> and type in the property address.</li>
-        <li>On the right side, choose the Buffer icon and type <strong>500</strong> feet in the pop-up window.</li>
-        <li>Take a screenshot of the radius. Name the file: <code>[TODAY'S DATE] – [property address] – 500ft radius</code>.</li>
-        <li>Use the download icon to export an Excel file with mailing addresses of people within the 500ft radius.</li>
-        <li>Copy the appropriate columns into this template — <strong>do not add, rearrange, or delete columns</strong>:
-          <table class="template-table">
-            <thead><tr><th>Owner Name</th><th>Mailing Street Address</th><th>City</th><th>State</th><th>Zip Code</th><th>Country</th><th>Folio Number</th></tr></thead>
-            <tbody><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></tbody>
+        <li>Use this link: <a href="https://gis.miami.gov/miamizoning/main" target="_blank">https://gis.miami.gov/miamizoning/main</a><br>Type the address of the property in.</li>
+        <li>On the right side choose this icon and type "500" feet in the pop up "Buffer" window.<br>
+          <img src="step4-buffer.png" alt="Buffer tool screenshot" style="max-width:100%;margin:8px 0;border-radius:4px;border:1px solid #e2e4e6"></li>
+        <li>Take a screenshot of the radius. You will need to upload it with your appeal. Like this:<br>
+          <img src="step4-radius.png" alt="500ft radius screenshot" style="max-width:100%;margin:8px 0;border-radius:4px;border:1px solid #e2e4e6"><br>
+          When you save the screenshot, name the file "[TODAY'S DATE] – [property address] – 500ft radius".</li>
+        <li>Use another icon to download the excel file with mailing addresses of people within the 500ft radius.<br>
+          <img src="step4-download.png" alt="Download icon screenshot" style="max-width:100%;margin:8px 0;border-radius:4px;border:1px solid #e2e4e6"></li>
+        <li>Copy appropriate columns into this template:
+          <table class="template-table" style="font-size:.72rem">
+            <thead><tr><th>Owner Name</th><th>Mailing Street Address</th><th>City</th><th>State</th><th>Zip</th><th>Country</th><th>Folio #</th></tr></thead>
+            <tbody>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            </tbody>
           </table>
+          Do not add, re-arrange, or delete any columns. Use only the seven (7) columns shown: 1) Owner Name 2) Mailing Address 3) City 4) State 5) Zip Code 6) Country 7) Folio Number.
         </li>
-        <li>Remove duplicates and empty lines. If one owner has multiple addresses, keep only one. If you see a long list with apartment numbers for a condo building, replace them all with one line for the Condominium Association.</li>
-        <li>Save as Excel format: <code>[TODAY'S DATE] – [property address] – list of owners 500ft radius</code></li>
+        <li>Make sure there are no duplicates, no empty lines. Make sure one owner does not have several mailing addresses (only keep one). Also, if you see a long list of addresses with apartment numbers, you must find out the name of the condominium building or co-op, delete them all and replace with ONLY one line for Condominium Association and one mailing address.<br><br>
+          The number of lines will determine the final price of your appeal, because you are responsible for paying to notify them all by mail about your appeal.
+        </li>
+        <li>Save the file in the excel (!) format with date in the name: "[TODAY'S DATE] – [property address] – list of owners 500ft radius"</li>
       </ol>
-      <em>Note: the number of lines determines the final price of your appeal, since you are responsible for notifying each owner by mail.</em>
     </div>
   </div>
 </div>
