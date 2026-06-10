@@ -17,6 +17,23 @@
     "tier": "yellow"
   },
   {
+    "address": "3530 SW 13 ST",
+    "issued": "06/16/2026",
+    "appeal": "06/26/2026",
+    "appno": "BD24-022832-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3530-SW-13-ST",
+    "reason": "trees are within the buildable footprint",
+    "trees_remove": 1,
+    "palms_remove": 5,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": 1,
+    "replacements": "EIGHT (8) hardwood trees throughout the property",
+    "tier": "yellow"
+  },
+  {
     "address": "1944 SW 16 TER",
     "issued": "06/09/2026",
     "appeal": "06/19/2026",
