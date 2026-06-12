@@ -409,18 +409,15 @@ def load_db():
 def merge_db(db, new_rows):
     """Merge freshly scraped rows into the database.
     - New decisions are added.
-    - Existing decisions are updated (in case of re-scrape with better data).
-    - Old decisions are NEVER deleted.
+    - Existing decisions that are still live get FULLY overwritten with the
+      fresh scrape's data (so corrected parser logic fixes stale counts,
+      e.g. a tree/palm split that was wrong before).
+    - Old decisions that have disappeared from the live site (no longer in
+      new_rows) are NEVER deleted — they remain as-is.
     Returns sorted list of all decisions."""
     for r in new_rows:
-        if r["url"] not in db or not db[r["url"]].get("issued"):
-            db[r["url"]] = r
-        else:
-            # Update fields that may have changed, but keep existing data.
-            existing = db[r["url"]]
-            for k, v in r.items():
-                if v and v != "—" and v is not None:
-                    existing[k] = v
+        # Always fully replace with the latest scrape for live decisions.
+        db[r["url"]] = r
     all_rows = list(db.values())
     all_rows.sort(key=lambda r: date_key(r.get("issued","")), reverse=True)
     return all_rows
