@@ -151,7 +151,7 @@ def split_palm_tree(phrase):
     # Use (?<=[\w)]) to also catch boundaries after closing parens like "(specimen)".
     word_nums = "|".join(WORDNUM.keys())
     normalised = re.sub(
-        r'(?<=[\w)])\s+(?=(?:' + word_nums + r')\s*\(\d+\)|(?:' + word_nums + r')\s+\d)',
+        r'(?<=[\w).])\s+(?=(?:' + word_nums + r')\s*\(\d+\)|(?:' + word_nums + r')\s+\d)',
         '|', phrase, flags=re.I)
     # Also split on commas/semicolons or contextual separators like "neighbors".
     normalised = re.sub(r'[,;]|\bneighbors?\b', '|', normalised, flags=re.I)
@@ -279,16 +279,11 @@ def parse_decision(text, url):
 
     # Strip (prohibited) tagged items from removal/relocation before palm/tree split
     # so they aren't double-counted (they're already captured by prohibited_in_text).
-    def strip_prohibited(phrase):
-        if not phrase or 'prohibited' not in phrase.lower():
-            return phrase
-        # Remove items that end with (prohibited ...) by removing the preceding count+species
-        return re.sub(
-            r'(?:,\s*)?(?:[A-Za-z\s]+\s*)?\([^)]*\)\s*[A-Za-z\s]*\(\s*prohibited[^)]*\)',
-            '', phrase, flags=re.I).strip(' ,')
-
-    remove_txt_clean   = strip_prohibited(remove_txt)
-    relocate_txt_clean = strip_prohibited(relocate_txt)
+    # Note: prohibited-tagged items are NOT stripped before the palm/tree
+    # split — they count toward trees_remove/palms_remove AND toward the
+    # prohibited column.
+    remove_txt_clean   = remove_txt
+    relocate_txt_clean = relocate_txt
 
     m_repl = re.search(r'(?:Number of Replacement Trees?|Replacement Trees?)[^:]*:\s*(.*?)' + NEXT, flat, re.I)
     replace_txt = m_repl.group(1).strip(" .") if m_repl else ""
@@ -570,9 +565,9 @@ def render(ts, n_total):
     <ul>
       <li><strong>Are you the next-door neighbor?</strong> Great — you'll pay a reduced fee to file.</li>
       <li><strong>Not next-door?</strong> Can you find the next-door neighbor who'd like to file and appear at City Hall when called?</li>
-      <li><strong>You live within 500ft and there's an HOA?</strong> The HOA can file for a reduced fee.</li>
+      <li><strong>Do you live within 500ft and there's an HOA?</strong> The HOA can file for a reduced fee.</li>
       <li><strong>No HOA but within 500ft?</strong> You can still apply, but you'll pay an extra $200.</li>
-      <li><strong>None of the above?</strong> Text us in the <a href="https://chat.whatsapp.com/EZmplvkz2EI8CZbU2pZWnj?mode=gi_t" target="_blank">chat</a> — we might be able to help you submit the appeal without the extra $200.</li>
+      <li><strong>None of the above?</strong> Text us in the <a href="https://chat.whatsapp.com/EZmplvkz2EI8CZbU2pZWnj?mode=gi_t" target="_blank">chat</a> — we will be able to help you submit the appeal for a reduced fee.</li>
     </ul>
   </div>
 </div>
@@ -585,10 +580,12 @@ def render(ts, n_total):
   <div class="step-body">
     Locate the <strong>Decision Application Number</strong> (looks like <code>BD25-000000-001</code>) and the address from the table above. Then send an email to <a href="mailto:PZHearingBoards@miami.gov">PZHearingBoards@miami.gov</a> as soon as possible:
     <div class="email-template">
-      <strong>If you are NOT the next-door neighbor:</strong><br>
+      <strong>If you are NOT the next-door neighbor within 500ft:</strong><br>
       My name is (NAME) and I am requesting the invoice for the appeal of the Intended Decision Application No. (NUMBER). The subject property address is (ADDRESS).<br><br>
       <strong>If you ARE the next-door neighbor:</strong><br>
-      My name is (NAME) and I am requesting the invoice for the appeal of the Intended Decision Application No. (NUMBER) as an ABUTTING PROPERTY OWNER. The subject property address is (ADDRESS).
+      My name is (NAME) and I am requesting the invoice for the appeal of the Intended Decision Application No. (NUMBER) as an ABUTTING PROPERTY OWNER. The subject property address is (ADDRESS).<br><br>
+      <strong>If you are a NON-PROFIT:</strong><br>
+      My name is (NAME) and I am representing not-for-profit organization (NAME OF ORG) requesting the invoice for the appeal of the Intended Decision Application No. (NUMBER) as a NON-PROFIT. The subject property address is (ADDRESS).
     </div>
     You will receive the invoice the same day.
   </div>
