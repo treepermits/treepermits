@@ -135,6 +135,17 @@ def split_palm_tree(phrase):
     if not phrase:
         return 0, 0
 
+    # Strip sentence-level boilerplate that isn't a separate tree item.
+    # e.g. "...Palms to be removed, all located inside the subject property."
+    # The clause after "to be removed/relocated, all located..." describes
+    # the whole set, not another tree, and must not be comma-split into a
+    # phantom item.
+    phrase = re.sub(
+        r'(?:to\s+be\s+(?:removed|relocated|transplanted|pruned)\s*,?\s*)?'
+        r'all\s+located\b.*$', '', phrase, flags=re.I).strip(' ,.')
+    phrase = re.sub(r'\bto\s+be\s+(?:removed|relocated|transplanted|pruned)\b', '',
+                     phrase, flags=re.I).strip(' ,.')
+
     # Normalise: insert a sentinel | before each new item boundary.
     # A new item starts when a word-number + (N) pattern follows a non-start position.
     # Use (?<=[\w)]) to also catch boundaries after closing parens like "(specimen)".
@@ -252,7 +263,7 @@ def parse_decision(text, url):
     reason = re.sub(r'\s*\*+\s*$', '', reason).strip(" .") if reason else ""
 
     NEXT = (r'(?=\s*(?:(?:Tree|Palm)\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)\s+'
-            r'(?:Removed|Relocated|Pruned|Transplanted)|'
+            r'(?:Removed|Relocated|Pruned|Transplanted)\s*&?\s*Location[^:]{0,20}:|'
             r'Number of Replacement|Replacement Tree|Reason For|'
             r'General Description|Trees listed above|Contact|$))')
 
