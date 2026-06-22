@@ -1,5 +1,22 @@
 [
   {
+    "address": "3540 E GLENCOE ST",
+    "issued": "06/23/2026",
+    "appeal": "07/03/2026",
+    "appno": "BD25-023783-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3540-E-GLENCOE-ST",
+    "reason": "Trees and palms are in conflict with the proposed construction",
+    "trees_remove": 6,
+    "palms_remove": 3,
+    "trees_relocate": 1,
+    "palms_relocate": 1,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": 2,
+    "replacements": "FOURTEEN(14) hardwood trees to be planted within the lot and THREE(3) hardwood trees to be planted within the right-of-way",
+    "tier": "orange"
+  },
+  {
     "address": "551 BAY POINT RD",
     "issued": "06/16/2026",
     "appeal": "06/26/2026",
