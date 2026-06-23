@@ -17,6 +17,23 @@
     "tier": "orange"
   },
   {
+    "address": "3301 MCDONALD ST",
+    "issued": "06/23/2026",
+    "appeal": "07/03/2026",
+    "appno": "BD20-022966-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION3301-MCDONALD-ST",
+    "reason": "Trees in the buildable footprint",
+    "trees_remove": 0,
+    "palms_remove": 0,
+    "trees_relocate": 1,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": 1,
+    "prohibited": null,
+    "replacements": "—",
+    "tier": "yellow"
+  },
+  {
     "address": "551 BAY POINT RD",
     "issued": "06/16/2026",
     "appeal": "06/26/2026",
