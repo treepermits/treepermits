@@ -153,6 +153,23 @@
     "tier": "yellow"
   },
   {
+    "address": "2130 SW 21 AV",
+    "issued": "06/30/2026",
+    "appeal": "07/10/2026",
+    "appno": "BD26-000157-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2130-SW-21-AV",
+    "reason": "Trees are within the buildable footprint",
+    "trees_remove": 3,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "replacements": "TWO (2) gumbo limbo, ONE (1) pigeon plum. (native trees) throughout the property. Contribution to the tree trust fund",
+    "tier": ""
+  },
+  {
     "address": "3101 GRAND AVENUE",
     "issued": "06/24/2026",
     "appeal": "07/03/2026",
