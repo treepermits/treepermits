@@ -170,6 +170,23 @@
     "tier": ""
   },
   {
+    "address": "1136 NW 29 TER",
+    "issued": "06/30/2026",
+    "appeal": "07/10/2026",
+    "appno": "BD26-005296-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1136-NW-29-TER",
+    "reason": "Trees are in direct conflict with the demolition. Tree(s) Removed & Location: ONE(1) Tropical Almond, ONE(1) Umbrella tree (Prohibited Species), and ONE(1) Strangler Fig to be removed from the lot",
+    "trees_remove": 0,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": 1,
+    "replacements": "SIX(6) hardwood native trees throughout the lot",
+    "tier": ""
+  },
+  {
     "address": "3101 GRAND AVENUE",
     "issued": "06/24/2026",
     "appeal": "07/03/2026",
