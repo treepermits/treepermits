@@ -170,6 +170,23 @@
     "tier": "red"
   },
   {
+    "address": "503 NW 16 AV",
+    "issued": "07/14/2026",
+    "appeal": "07/24/2026",
+    "appno": "BD25-010190-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION503-NW-16-AV",
+    "reason": "Trees in the buildable footprint",
+    "trees_remove": 11,
+    "palms_remove": 2,
+    "trees_relocate": 4,
+    "palms_relocate": 16,
+    "specimen_remove": null,
+    "specimen_relocate": 2,
+    "prohibited": null,
+    "replacements": "FOUR(4) Bridalveil Trees, FOURTEEN(14) Orange Geigers, FOUR(4) Japanese Blueberry, TWO(2) Wild Tamarinds, all to be planted inside the subject property",
+    "tier": "red"
+  },
+  {
     "address": "4141 RAYNOLDS AV",
     "issued": "07/07/2026",
     "appeal": "07/17/2026",
