@@ -1,5 +1,22 @@
 [
   {
+    "address": "2800 CHUCUNANTAH RD",
+    "issued": "",
+    "appeal": "",
+    "appno": "",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2800-CHUCUNANTAH-RD",
+    "reason": "(parse error: Could not fetch https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2800-CHUCUNANTAH-RD.\n  requests: requests got HTTP 403 (len 550)\n  playwright: Page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2800-CHUCUNANTAH-RD\", waiting until \"networkidle\"\n)",
+    "trees_remove": 0,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "replacements": "—",
+    "tier": ""
+  },
+  {
     "address": "919 SW 23 RD",
     "issued": "07/21/2026",
     "appeal": "07/31/2026",
@@ -184,23 +201,6 @@
     "specimen_relocate": null,
     "prohibited": null,
     "replacements": "FOUR(4) Pigeon Plum to be planted inside the subject property",
-    "tier": ""
-  },
-  {
-    "address": "2800 CHUCUNANTAH RD",
-    "issued": "07/21/2026",
-    "appeal": "07/31/2026",
-    "appno": "BD25-029888-001",
-    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2800-CHUCUNANTAH-RD",
-    "reason": "Trees are within the buildable footprint",
-    "trees_remove": 0,
-    "palms_remove": 4,
-    "trees_relocate": 0,
-    "palms_relocate": 0,
-    "specimen_remove": null,
-    "specimen_relocate": null,
-    "prohibited": null,
-    "replacements": "TWO (2) native Spanish stoppers",
     "tier": ""
   },
   {
