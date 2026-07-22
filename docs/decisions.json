@@ -1,20 +1,20 @@
 [
   {
     "address": "3582 AVOCADO AV",
-    "issued": "",
-    "appeal": "",
-    "appno": "",
+    "issued": "07/28/2026",
+    "appeal": "08/07/2026",
+    "appno": "BD25-021283-001",
     "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3582-AVOCADO-AV",
-    "reason": "(parse error: Could not fetch https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3582-AVOCADO-AV.\n  requests: requests got HTTP 403 (len 546)\n  playwright: Page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3582-AVOCADO-AV\", waiting until \"networkidle\"\n)",
-    "trees_remove": 0,
-    "palms_remove": 0,
+    "reason": "Root system of Specimen Royal Poinciana will be severely impacted within the buildable footprint of new construction and palms being replaced with native hardwoods",
+    "trees_remove": 2,
+    "palms_remove": 4,
     "trees_relocate": 0,
     "palms_relocate": 0,
-    "specimen_remove": null,
+    "specimen_remove": 1,
     "specimen_relocate": null,
     "prohibited": null,
     "replacements": "—",
-    "tier": ""
+    "tier": "yellow"
   },
   {
     "address": "3580 MAIN HWY",
