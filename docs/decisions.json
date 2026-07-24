@@ -119,6 +119,23 @@
     "tier": ""
   },
   {
+    "address": "770 SW 21 RD",
+    "issued": "07/28/2026",
+    "appeal": "08/07/2026",
+    "appno": "BD25-029782-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-770-SW-21-RD",
+    "reason": "Located in the buildable footprint",
+    "trees_remove": 3,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": 1,
+    "specimen_relocate": null,
+    "prohibited": 1,
+    "replacements": "SIX(6) HARDWOOD TREES. To be planted within the lot. TWO (2) HARDWOOD TREES. To be planted within the right of way",
+    "tier": "yellow"
+  },
+  {
     "address": "2800 CHUCUNANTAH RD",
     "issued": "07/21/2026",
     "appeal": "07/31/2026",
