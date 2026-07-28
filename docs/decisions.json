@@ -187,6 +187,23 @@
     "tier": ""
   },
   {
+    "address": "1607 MICANOPY AV",
+    "issued": "07/28/2026",
+    "appeal": "08/07/2026",
+    "appno": "BD26-008397-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1607-MICANOPY-AV",
+    "reason": "Conflict with the proposed construction",
+    "trees_remove": 1,
+    "palms_remove": 4,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": 1,
+    "replacements": "ONE (1) Hardwood throughout the lot and ONE (1) Hardwood in the ROW",
+    "tier": "yellow"
+  },
+  {
     "address": "2800 CHUCUNANTAH RD",
     "issued": "07/21/2026",
     "appeal": "07/31/2026",
