@@ -85,6 +85,23 @@
     "tier": ""
   },
   {
+    "address": "3200 MORRIS LN",
+    "issued": "08/04/2026",
+    "appeal": "08/14/2026",
+    "appno": "BD26-013419-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3200-MORRIS-LN",
+    "reason": "Conflict with the proposed construction",
+    "trees_remove": 0,
+    "palms_remove": 1,
+    "trees_relocate": 1,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "replacements": "THREE (3) Hardwoods throughout the lot",
+    "tier": ""
+  },
+  {
     "address": "3582 AVOCADO AV",
     "issued": "07/28/2026",
     "appeal": "08/07/2026",
