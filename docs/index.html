@@ -38,7 +38,12 @@
  tr.red{background:var(--red)} tr.red td:first-child{border-left:4px solid var(--redb)}
  tr.orange{background:var(--org)} tr.orange td:first-child{border-left:4px solid var(--orgb)}
  tr.yellow{background:var(--yel)} tr.yellow td:first-child{border-left:4px solid var(--yelb)}
- .note{padding:8px 22px;font-size:.78rem;color:#666}
+ .tracker-totals-row th{background:#0b5e3b;color:#fff;font-size:.8rem;text-align:center;position:sticky;top:0}
+ .tracker-totals-row th:first-child{text-align:left}
+ .tracker-total{display:block;font-size:1.1rem;font-weight:700;margin-top:2px}
+ td.tracker-species{max-width:320px;font-size:.78rem;color:#444}
+ td.tracker-num{text-align:center;font-size:.88rem}
+ td.tracker-atf{text-align:center;font-size:.88rem;color:#c0392b;font-weight:600}
  .gs-banner{padding:6px 22px;font-size:.78rem;background:#e8f5e9;color:#1b5e20;border-bottom:1px solid #c8e6c9}
  .gs-banner a{color:#0b5e3b}
  #loading{padding:40px;text-align:center;color:#888}
@@ -74,7 +79,7 @@
 </header>
 <div class="bar">
   <button onclick="location.reload(true)">↻ Refresh</button>
-  <span class="meta">Data updated 2026-08-13 23:51:43 UTC &nbsp;•&nbsp; 123 decisions on record</span>
+  <span class="meta">Data updated 2026-08-14 02:31:46 UTC &nbsp;•&nbsp; 123 decisions on record</span>
   <span class="legend">
     <span class="lg-red">tree removal 8+</span>
     <span class="lg-org">tree removal 5–7 or relocation 7+ (w/ removals)</span>
@@ -89,6 +94,7 @@
 <div class="tabs">
   <div class="tab active" onclick="switchTab('active',this)" id="tab-active">Active decisions</div>
   <div class="tab" onclick="switchTab('expired',this)" id="tab-expired">Expired decisions</div>
+  <div class="tab" onclick="switchTab('tracker',this)" id="tab-tracker">Removal tracker</div>
 </div>
 
 <div id="pane-active" class="pane active">
@@ -364,10 +370,104 @@ Cc: City of Miami</p>
 </div>
 </div>
 
+<div id="pane-tracker" class="pane">
+<div class="note">All tree removals posted since August 10, 2026. Click an address to open the original notice.
+  <button onclick="downloadTrackerCSV()" style="margin-left:12px;padding:5px 12px;font-size:.78rem;background:#0b5e3b;color:#fff;border:0;border-radius:4px;cursor:pointer">⬇ Download CSV</button>
+</div>
+<div class="wrap"><table id="tracker-table">
+<thead>
+<tr class="tracker-totals-row">
+  <th>Address</th>
+  <th>Trees removed<br><span id="tracker-total-trees" class="tracker-total">—</span></th>
+  <th>Specimen removed<br><span id="tracker-total-specimen" class="tracker-total">—</span></th>
+  <th>After the fact<br><span id="tracker-total-atf" class="tracker-total">—</span></th>
+</tr>
+</thead>
+<tbody id="tbody-tracker"></tbody>
+</table></div></div>
+
 <script>
 // ── Helpers ────────────────────────────────────────────────────────────────
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Tracker rendering ──────────────────────────────────────────────────────
+function renderTracker() {
+  const tbody = document.getElementById('tbody-tracker');
+  if (!tbody) return;
+
+  let totalTrees = 0, totalSpecimen = 0, totalAtf = 0;
+  const rows = allDecisions.map(r => {
+    const trees = (parseInt(r.trees_remove)||0) + (parseInt(r.palms_remove)||0);
+    const spec  = parseInt(r.specimen_remove) || 0;
+    const atf   = parseInt(r.after_the_fact)  || 0;
+    totalTrees   += trees;
+    totalSpecimen += spec;
+    totalAtf     += atf;
+
+    const addrCell = r.url
+      ? `<a href="${esc(r.url)}" target="_blank">${esc(r.address)}</a>`
+      : esc(r.address);
+    const specCell = spec > 0 ? spec : '—';
+    const atfCell  = atf  > 0 ? atf  : '—';
+    const treesCell = trees > 0
+      ? `${trees} (${parseInt(r.trees_remove)||0} trees, ${parseInt(r.palms_remove)||0} palms)`
+      : '—';
+
+    return `<tr>
+<td class="addr">${addrCell}<div class="app">${esc(r.appno)}</div></td>
+<td class="tracker-num">${treesCell}<div class="tracker-species">${esc(r.remove_txt||'—')}</div></td>
+<td class="tracker-num">${specCell}</td>
+<td class="tracker-atf">${atfCell}</td>
+</tr>`;
+  });
+
+  tbody.innerHTML = rows.join('') ||
+    '<tr><td colspan="4" style="text-align:center;color:#888;padding:24px">No records yet.</td></tr>';
+
+  document.getElementById('tracker-total-trees').textContent   = totalTrees;
+  document.getElementById('tracker-total-specimen').textContent = totalSpecimen || '0';
+  document.getElementById('tracker-total-atf').textContent     = totalAtf || '0';
+  document.getElementById('tab-tracker').textContent = `Removal tracker (${allDecisions.length})`;
+}
+
+// ── Download tracker as CSV ────────────────────────────────────────────────
+function downloadTrackerCSV() {
+  const headers = ['Address', 'App #', 'Date posted', 'Appeal by',
+                   'Trees removed', 'Palms removed', 'Total removed',
+                   'Specimen removed', 'After the fact', 'Species text (removal)'];
+  const rows = allDecisions.map(r => [
+    r.address || '',
+    r.appno   || '',
+    r.issued  || '',
+    r.appeal  || '',
+    r.trees_remove  ?? '',
+    r.palms_remove  ?? '',
+    (parseInt(r.trees_remove)||0) + (parseInt(r.palms_remove)||0),
+    r.specimen_remove  ?? '',
+    r.after_the_fact   ?? '',
+    r.remove_txt || '',
+  ]);
+
+  // Build CSV — quote fields containing commas/newlines/quotes.
+  function csvField(v) {
+    const s = String(v ?? '');
+    return (s.includes(',') || s.includes('"') || s.includes('\n'))
+      ? '"' + s.replace(/"/g, '""') + '"'
+      : s;
+  }
+  const csv = [headers, ...rows]
+    .map(row => row.map(csvField).join(','))
+    .join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'miami-tree-removal-tracker.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 function ns(v) {
   return (v===null||v===undefined||v==='')?'not stated':esc(String(v));
@@ -565,6 +665,7 @@ async function init() {
   await loadSheet();
   // Render everything.
   renderTables();
+  renderTracker();
 }
 
 init();
