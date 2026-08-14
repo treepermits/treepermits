@@ -970,9 +970,9 @@ function esc(s) {{
 // ── Tracker rendering ──────────────────────────────────────────────────────
 // ── Tracker rendering ──────────────────────────────────────────────────────
 // ── JS-side count parser for pre-Aug entries ──────────────────────────────
-const PALM_KW = new RegExp('(palm|palma|palmetto|cycas|sago|sabal|cabbage|coconut|foxtail|christmas|alexander|areca|bamboo|bismarck|bottle|canary|cat|chinese fan|coco|date|european fan|fan|fishtail|hurricane|lady|latania|licuala|livistona|manila|majestic|mediterranean|needle|parlor|paurotis|petticoat|phoenix|piccabeen|pigmy|ponytail|princess|queen|reclinata|red latan|royal|saw palmetto|senegal|silver|solitaire|spindle|sylvester|thatch|triangle|washington|washingtonia|windmill|yellow butterfly|yatay)', 'i');
-const PROH_KW  = new RegExp('(mothers.\\s*tongue|sansevieria|brazilian pepper|schinus|umbrella(\\s+tree)?|schefflera|australian pine|casuarina|frangipani|screw pine)', 'i');
-const NEVER_PROH = new RegExp('ficus\\s+benjamina|weeping\\s+fig', 'i');
+const PALM_KW = new RegExp('(\\\\bpalms?\\\\b|\\\\bpalmetto\\\\b|cycas|sago|sabal|coconut|foxtail|areca|bismarck|christmas palm|solitaire palm|royal palm|queen palm|fan palm|date palm|chinese fan|senegal palm|paurotis|reclinata|washingtonia|windmill palm|saw palmetto|fishtail palm|bottle palm|canary|triangle palm|sylvester palm|cat palm|lady palm|parlor palm|manila palm|majestic palm|yellow butterfly|petticoat palm)', 'i');
+const PROH_KW  = new RegExp("(mother.?s?\\\\s+tongue|sansevieria|brazilian pepper|schinus|umbrella(\\\\s+tree)?|schefflera|australian pine|casuarina)", 'i');
+const NEVER_PROH = new RegExp('ficus\\\\s+benjamina|weeping\\\\s+fig', 'i');
 const SPEC_KW  = new RegExp('specimen', 'i');
 const WN = {{one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,
   eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,
@@ -981,18 +981,21 @@ const WN = {{one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:
 function parseCountsFromText(txt) {{
   if (!txt || txt === '\u2014') return null;
   let trees = 0, palms = 0, spec = 0, proh = 0;
-  // Split on commas, semicolons, & to get individual items
-  const items = txt.split(/[,;&]+/);
-  for (const item of items) {{
-    const t = item.trim();
-    if (!t) continue;
-    // Extract count: "(N) Species" or "WORD(N) Species" or "WORD (N) Species"
-    const m = t.match(/^(?:(twenty[\s-](?:one|two|three|four|five)|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\s*)?\((\d+)\)\s+(.+)/i);
-    if (!m) continue;
-    const cnt = parseInt(m[2]);
-    const species = m[3].replace(/\s*(from|located|within|inside|at|to)\s.*$/i,'').trim();
+  // Match count patterns anywhere in the text: "TWO(2) Species" or "(2) Species"
+  const pat = new RegExp(
+    '(?:(?:twenty(?:[\\\\s-](?:one|two|three|four|five))?|one|two|three|four|five|six|' +
+    'seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|' +
+    'eighteen|nineteen|twenty)\\\\s*)?\\\\((\\\\d+)\\\\)\\\\s+([A-Za-z][^,(;&.\\\\n]*?)' +
+    '(?=\\\\s*(?:[,;&.(]|from\\\\s|located|within|inside|$))', 'gi');
+  let m;
+  while ((m = pat.exec(txt)) !== null) {{
+    const cnt = parseInt(m[1]);
+    const species = m[2].trim();
     if (!cnt || !species) continue;
-    const isProh = PROH_KW.test(species) && !NEVER_PROH.test(species);
+    const afterMatch = txt.slice(m.index + m[0].length);
+    const explicitTag = /^\s*\(\s*prohibited/i.test(afterMatch);
+    const isProh = !NEVER_PROH.test(species) &&
+                   (PROH_KW.test(species) || explicitTag);
     const isPalm = PALM_KW.test(species);
     const isSpec = SPEC_KW.test(species);
     if (isProh) {{ proh += cnt; trees += cnt; }}
