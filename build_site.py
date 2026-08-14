@@ -20,6 +20,17 @@ OUT  = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs", "index.h
 
 # ---------------------------------------------------------------------------
 # Palm identification — Florida standard list.
+# Species exempt from prohibited labeling (should always count as regular trees).
+NEVER_PROHIBITED = [r'ficus\s+benjamina', r'weeping\s+fig']
+
+# Species that are definitely prohibited and should be counted as such
+# even when not explicitly tagged in the removal text.
+KNOWN_PROHIBITED = [
+    r"mother'?s?\s+tongue", r'sansevieria',
+    r'brazilian\s+pepper', r'schinus\s+terebinthif',
+    r'umbrella\s+tree', r'schefflera',
+]
+
 # A tree item is a palm if its species name contains any of these words.
 # ---------------------------------------------------------------------------
 PALM_KEYWORDS = {
@@ -146,6 +157,8 @@ def split_palm_tree(phrase):
     phrase = re.sub(r'\bto\s+be\s+(?:removed|relocated|transplanted|pruned)\b', '',
                      phrase, flags=re.I).strip(' ,.')
     phrase = re.sub(r',?\s*after\s+the\s+fact\.?', '', phrase, flags=re.I).strip(' ,.')
+    # Strip trailing location clauses that follow a comma (not separate tree items)
+    phrase = re.sub(r',\s*(?:located\s+)?(?:from\s+)?(?:inside|within|throughout|at|in|near|along|adjacent)\b.*$', '', phrase, flags=re.I).strip(' ,.')
 
     # Normalise: insert a sentinel | before each new item boundary.
     # A new item starts when a word-number + (N) pattern follows a non-start position.
@@ -158,6 +171,8 @@ def split_palm_tree(phrase):
     normalised = re.sub(r'[,;]|\bneighbors?\b', '|', normalised, flags=re.I)
     # Also split on & when followed by a count like (1) or ONE
     normalised = re.sub(r'\s*&\s*(?=\(?\d+\)?|\b(?:' + word_nums + r')\b)', '|', normalised, flags=re.I)
+    # Split on embedded field labels like "Tree(s) Removed:" mid-value
+    normalised = re.sub(r'(?:Tree|Palm)\s*\(?s?\)?\s+\w[\w\s-]*:', '|', normalised, flags=re.I)
     items = [i.strip() for i in normalised.split('|') if i.strip()]
 
     palms = 0
@@ -216,9 +231,6 @@ def prohibited_in_text(flat):
     regardless of how the city labels them."""
     if "prohibited" not in flat.lower():
         return None
-
-    # Species that should never be counted as prohibited regardless of city labeling.
-    NEVER_PROHIBITED = [r'ficus\s+benjamina', r'weeping\s+fig']
 
     # Count how many "never prohibited" items appear tagged as (prohibited).
     never_count = 0
@@ -282,7 +294,7 @@ def parse_decision(text, url):
               find(r'issued\s+([0-9]{1,2}/[0-9]{1,2}/[0-9]{4})'))
     appeal = find(r'Appeals?\s+(?:Must Be|must be)\s+[Rr]eceived\s+[Bb]y:?\s*([0-9]{1,2}/[0-9]{1,2}/[0-9]{4})')
     appno  = find(r'Application Number:?\s*([A-Za-z0-9\-]+)')
-    reason = find(r'Reason For Tree Activity:\s*(.+?)\s+(?:Tree\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)|Number of Replacement|General Description|Trees listed above|Contact details|$)')
+    reason = find(r'Reason For Tree Activity:\s*(.+?)\s+(?:Tree\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)\s+\w|Tree\s*\(?s?\)?\s+(?:Removed|Relocated)\s*(?:&|\()|Number of Replacement|General Description|Trees listed above|Contact details|$)')
     reason = re.sub(r'\s*\*+\s*$', '', reason).strip(" .") if reason else ""
 
     NEXT = (r'(?=\s*(?:(?:Tree|Palm)\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)\s+'
@@ -366,6 +378,11 @@ def parse_decision(text, url):
     if not dead_remove and reason and re.search(r'\b(?:sick|diseased|dead)\b', reason, re.I):
         dead_remove = trees_remove or None
 
+    # Also catch "removed without a permit" style ATF reason
+    if not after_the_fact and reason and re.search(
+            r'without\s+a?\s*permit|removed\s+without|unpermitted', reason, re.I):
+        after_the_fact = (trees_remove + (palms_remove or 0)) or None
+
     # Also check General Description for after-the-fact — use full flat text search
     if not after_the_fact and re.search(r'after.the.fact\s+tree\s+removal', flat, re.I):
         after_the_fact = trees_remove or None
@@ -373,10 +390,34 @@ def parse_decision(text, url):
     specimen_remove   = specimen_in_phrase(remove_txt)
     specimen_relocate = specimen_in_phrase(relocate_txt)
     prohibited        = prohibited_in_text(flat)
-    # Fallback: if Reason field says "Prohibited Species" but no inline tag found,
-    # count all removed trees as prohibited (city sometimes flags via Reason only).
+
+    # Count known-prohibited species that appear WITHOUT an explicit (prohibited) tag
+    # (to avoid double-counting items already caught by prohibited_in_text).
+    if remove_txt and remove_txt != '—':
+        for pat in KNOWN_PROHIBITED:
+            for m in re.finditer(pat, remove_txt, re.I):
+                # Skip if followed by a (prohibited...) tag — already counted
+                after = remove_txt[m.end():m.end()+30]
+                if re.search(r'^\s*\(\s*prohibited', after, re.I):
+                    continue
+                head = remove_txt[:m.start()]
+                cm = re.findall(r'\((\d+)\)|\b(' + '|'.join(WORDNUM) + r')\b', head, re.I)
+                cnt = 1
+                if cm:
+                    last = cm[-1]
+                    cnt = int(last[0]) if last[0] else WORDNUM.get(last[1].lower(), 1)
+                prohibited = (prohibited or 0) + cnt
+        if prohibited == 0:
+            prohibited = None
+
+    # Fallback: if Reason says "Prohibited Species" but no inline tag found,
+    # count all removed trees as prohibited.
     if prohibited is None and reason and re.search(r'\bprohibited\s+species\b', reason, re.I):
         prohibited = trees_remove + palms_remove or None
+
+    # ATF should exclude prohibited species (they don't need a permit anyway).
+    if after_the_fact and prohibited:
+        after_the_fact = max(0, after_the_fact - prohibited) or None
 
     return {
         "address":           address,
@@ -607,8 +648,7 @@ def render(ts, n_total):
 <div class="tabs">
   <div class="tab active" onclick="switchTab('active',this)" id="tab-active">Active decisions</div>
   <div class="tab" onclick="switchTab('expired',this)" id="tab-expired">Expired decisions</div>
-  <div class="tab" onclick="switchTab('tracker',this)" id="tab-tracker">Removal tracker — Aug 10+</div>
-  <div class="tab" onclick="switchTab('tracker-pre',this)" id="tab-tracker-pre">Limited tracker — pre Aug 10, 2026</div>
+  <div class="tab" onclick="switchTab('tracker',this)" id="tab-tracker">Removal tracker</div>
 </div>
 
 <div id="pane-active" class="pane active">
@@ -885,7 +925,7 @@ Cc: City of Miami</p>
 </div>
 
 <div id="pane-tracker" class="pane">
-<div class="note">All tree removals for which full text was captured (starting Aug 10, 2026).
+<div class="note">All tree removals. For permits that expired before August 10, 2026 the description was not captured.
   <button onclick="downloadTrackerCSV()" style="margin-left:12px;padding:5px 12px;font-size:.78rem;background:#0b5e3b;color:#fff;border:0;border-radius:4px;cursor:pointer">⬇ Download CSV</button>
 </div>
 <div class="wrap"><table>
@@ -900,22 +940,6 @@ Cc: City of Miami</p>
   <th>After<br>the fact<br><span id="tracker-total-atf" class="tracker-total">—</span></th>
 </tr></thead>
 <tbody id="tbody-tracker"></tbody>
-</table></div></div>
-
-<div id="pane-tracker-pre" class="pane">
-<div class="note">Decisions that expired before full text capture was implemented. Species text not available.</div>
-<div class="wrap"><table>
-<thead><tr class="tracker-totals-row">
-  <th>Address</th>
-  <th>Reason</th>
-  <th>Description</th>
-  <th>Non-prohibited<br>trees removed<br><span id="tracker-pre-total-trees" class="tracker-total">—</span></th>
-  <th>Of them,<br>specimen<br><span id="tracker-pre-total-specimen" class="tracker-total">—</span></th>
-  <th>Palms<br>removed<br><span id="tracker-pre-total-palms" class="tracker-total">—</span></th>
-  <th>Prohibited<br><span id="tracker-pre-total-prohibited" class="tracker-total">—</span></th>
-  <th>After the fact<br>(not counted)<br><span id="tracker-pre-total-atf" class="tracker-total">—</span></th>
-</tr></thead>
-<tbody id="tbody-tracker-pre"></tbody>
 </table></div></div>
 
 <script>
@@ -967,34 +991,25 @@ function trackerRow(r) {{
 }}
 
 function renderTracker() {{
-  // Aug 10+ tab: decisions WITH remove_txt
-  const withText = allDecisions.filter(r => r.remove_txt && r.remove_txt !== '—');
-  // Pre-Aug tab: decisions WITHOUT remove_txt
-  const noText   = allDecisions.filter(r => !r.remove_txt || r.remove_txt === '—');
+  const tbody = document.getElementById('tbody-tracker');
+  if (!tbody) return;
 
-  function populate(rows, tbodyId, prefix) {{
-    let tT=0, tS=0, tP=0, tPr=0, tAtf=0;
-    const html = rows.map(r => {{
-      const d = trackerRow(r);
-      tT += d.nonProh; tS += d.spec; tP += d.palms; tPr += d.proh; tAtf += d.atf;
-      return d.html;
-    }});
-    const tbody = document.getElementById(tbodyId);
-    const cols  = 8;
-    tbody.innerHTML = html.join('') ||
-      `<tr><td colspan="${{cols}}" style="text-align:center;color:#888;padding:24px">No records.</td></tr>`;
-    document.getElementById(prefix + 'total-trees').textContent     = tT;
-    document.getElementById(prefix + 'total-specimen').textContent  = tS;
-    document.getElementById(prefix + 'total-palms').textContent     = tP;
-    document.getElementById(prefix + 'total-prohibited').textContent= tPr;
-    document.getElementById(prefix + 'total-atf').textContent       = tAtf;
-  }}
+  let tT=0, tS=0, tP=0, tPr=0, tAtf=0;
+  const html = allDecisions.map(r => {{
+    const d = trackerRow(r);
+    tT += d.nonProh; tS += d.spec; tP += d.palms; tPr += d.proh; tAtf += d.atf;
+    return d.html;
+  }});
 
-  populate(withText, 'tbody-tracker',     'tracker-');
-  populate(noText,   'tbody-tracker-pre', 'tracker-pre-');
+  tbody.innerHTML = html.join('') ||
+    `<tr><td colspan="8" style="text-align:center;color:#888;padding:24px">No records.</td></tr>`;
 
-  document.getElementById('tab-tracker').textContent     = `Removal tracker — Aug 10+ (${{withText.length}})`;
-  document.getElementById('tab-tracker-pre').textContent = `Limited tracker — pre Aug 10, 2026 (${{noText.length}})`;
+  document.getElementById('tracker-total-trees').textContent      = tT;
+  document.getElementById('tracker-total-specimen').textContent   = tS;
+  document.getElementById('tracker-total-palms').textContent      = tP;
+  document.getElementById('tracker-total-prohibited').textContent = tPr;
+  document.getElementById('tracker-total-atf').textContent        = tAtf;
+  document.getElementById('tab-tracker').textContent = `Removal tracker (${{allDecisions.length}})`;
 }}
 
 // ── Download tracker as CSV (Aug 10+ tab only) ─────────────────────────────
