@@ -79,7 +79,7 @@
 </header>
 <div class="bar">
   <button onclick="location.reload(true)">↻ Refresh</button>
-  <span class="meta">Data updated 2026-08-14 04:21:40 UTC &nbsp;•&nbsp; 123 decisions on record</span>
+  <span class="meta">Data updated 2026-08-14 04:46:30 UTC &nbsp;•&nbsp; 123 decisions on record</span>
   <span class="legend">
     <span class="lg-red">tree removal 8+</span>
     <span class="lg-org">tree removal 5–7 or relocation 7+ (w/ removals)</span>
@@ -94,8 +94,7 @@
 <div class="tabs">
   <div class="tab active" onclick="switchTab('active',this)" id="tab-active">Active decisions</div>
   <div class="tab" onclick="switchTab('expired',this)" id="tab-expired">Expired decisions</div>
-  <div class="tab" onclick="switchTab('tracker',this)" id="tab-tracker">Removal tracker — Aug 10+</div>
-  <div class="tab" onclick="switchTab('tracker-pre',this)" id="tab-tracker-pre">Limited tracker — pre Aug 10, 2026</div>
+  <div class="tab" onclick="switchTab('tracker',this)" id="tab-tracker">Removal tracker</div>
 </div>
 
 <div id="pane-active" class="pane active">
@@ -372,7 +371,7 @@ Cc: City of Miami</p>
 </div>
 
 <div id="pane-tracker" class="pane">
-<div class="note">All tree removals for which full text was captured (starting Aug 10, 2026).
+<div class="note">All tree removals. For permits that expired before August 10, 2026 the description was not captured.
   <button onclick="downloadTrackerCSV()" style="margin-left:12px;padding:5px 12px;font-size:.78rem;background:#0b5e3b;color:#fff;border:0;border-radius:4px;cursor:pointer">⬇ Download CSV</button>
 </div>
 <div class="wrap"><table>
@@ -387,22 +386,6 @@ Cc: City of Miami</p>
   <th>After<br>the fact<br><span id="tracker-total-atf" class="tracker-total">—</span></th>
 </tr></thead>
 <tbody id="tbody-tracker"></tbody>
-</table></div></div>
-
-<div id="pane-tracker-pre" class="pane">
-<div class="note">Decisions that expired before full text capture was implemented. Species text not available.</div>
-<div class="wrap"><table>
-<thead><tr class="tracker-totals-row">
-  <th>Address</th>
-  <th>Reason</th>
-  <th>Description</th>
-  <th>Non-prohibited<br>trees removed<br><span id="tracker-pre-total-trees" class="tracker-total">—</span></th>
-  <th>Of them,<br>specimen<br><span id="tracker-pre-total-specimen" class="tracker-total">—</span></th>
-  <th>Palms<br>removed<br><span id="tracker-pre-total-palms" class="tracker-total">—</span></th>
-  <th>Prohibited<br><span id="tracker-pre-total-prohibited" class="tracker-total">—</span></th>
-  <th>After the fact<br>(not counted)<br><span id="tracker-pre-total-atf" class="tracker-total">—</span></th>
-</tr></thead>
-<tbody id="tbody-tracker-pre"></tbody>
 </table></div></div>
 
 <script>
@@ -454,34 +437,25 @@ function trackerRow(r) {
 }
 
 function renderTracker() {
-  // Aug 10+ tab: decisions WITH remove_txt
-  const withText = allDecisions.filter(r => r.remove_txt && r.remove_txt !== '—');
-  // Pre-Aug tab: decisions WITHOUT remove_txt
-  const noText   = allDecisions.filter(r => !r.remove_txt || r.remove_txt === '—');
+  const tbody = document.getElementById('tbody-tracker');
+  if (!tbody) return;
 
-  function populate(rows, tbodyId, prefix) {
-    let tT=0, tS=0, tP=0, tPr=0, tAtf=0;
-    const html = rows.map(r => {
-      const d = trackerRow(r);
-      tT += d.nonProh; tS += d.spec; tP += d.palms; tPr += d.proh; tAtf += d.atf;
-      return d.html;
-    });
-    const tbody = document.getElementById(tbodyId);
-    const cols  = 8;
-    tbody.innerHTML = html.join('') ||
-      `<tr><td colspan="${cols}" style="text-align:center;color:#888;padding:24px">No records.</td></tr>`;
-    document.getElementById(prefix + 'total-trees').textContent     = tT;
-    document.getElementById(prefix + 'total-specimen').textContent  = tS;
-    document.getElementById(prefix + 'total-palms').textContent     = tP;
-    document.getElementById(prefix + 'total-prohibited').textContent= tPr;
-    document.getElementById(prefix + 'total-atf').textContent       = tAtf;
-  }
+  let tT=0, tS=0, tP=0, tPr=0, tAtf=0;
+  const html = allDecisions.map(r => {
+    const d = trackerRow(r);
+    tT += d.nonProh; tS += d.spec; tP += d.palms; tPr += d.proh; tAtf += d.atf;
+    return d.html;
+  });
 
-  populate(withText, 'tbody-tracker',     'tracker-');
-  populate(noText,   'tbody-tracker-pre', 'tracker-pre-');
+  tbody.innerHTML = html.join('') ||
+    `<tr><td colspan="8" style="text-align:center;color:#888;padding:24px">No records.</td></tr>`;
 
-  document.getElementById('tab-tracker').textContent     = `Removal tracker — Aug 10+ (${withText.length})`;
-  document.getElementById('tab-tracker-pre').textContent = `Limited tracker — pre Aug 10, 2026 (${noText.length})`;
+  document.getElementById('tracker-total-trees').textContent      = tT;
+  document.getElementById('tracker-total-specimen').textContent   = tS;
+  document.getElementById('tracker-total-palms').textContent      = tP;
+  document.getElementById('tracker-total-prohibited').textContent = tPr;
+  document.getElementById('tracker-total-atf').textContent        = tAtf;
+  document.getElementById('tab-tracker').textContent = `Removal tracker (${allDecisions.length})`;
 }
 
 // ── Download tracker as CSV (Aug 10+ tab only) ─────────────────────────────
