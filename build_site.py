@@ -28,7 +28,7 @@ NEVER_PROHIBITED = [r'ficus\s+benjamina', r'weeping\s+fig']
 KNOWN_PROHIBITED = [
     r"mother'?s?\s+tongue", r'sansevieria',
     r'brazilian\s+pepper', r'schinus\s+terebinthif',
-    r'umbrella\s+tree', r'schefflera',
+    r'umbrella(?:\s+tree)?', r'schefflera',
 ]
 
 # A tree item is a palm if its species name contains any of these words.
@@ -159,6 +159,9 @@ def split_palm_tree(phrase):
     phrase = re.sub(r',?\s*after\s+the\s+fact\.?', '', phrase, flags=re.I).strip(' ,.')
     # Strip trailing location clauses that follow a comma (not separate tree items)
     phrase = re.sub(r',\s*(?:located\s+)?(?:from\s+)?(?:inside|within|throughout|at|in|near|along|adjacent)\b.*$', '', phrase, flags=re.I).strip(' ,.')
+    # Remove items explicitly described as relocated (not removed)
+    # e.g. "& (1) Live Oak was relocated within the lot"
+    phrase = re.sub(r'(?:,|&)\s*[^,&]*\bwas\s+relocated\b[^,&]*', '', phrase, flags=re.I).strip(' ,.')
 
     # Normalise: insert a sentinel | before each new item boundary.
     # A new item starts when a word-number + (N) pattern follows a non-start position.
@@ -167,6 +170,8 @@ def split_palm_tree(phrase):
     normalised = re.sub(
         r'(?<=[\w).])\s+(?=(?:' + word_nums + r')\s*\(\d+\)|(?:' + word_nums + r')\s+\d)',
         '|', phrase, flags=re.I)
+    # Also split before bare (N) count after a closing paren only (safe case)
+    normalised = re.sub(r'(?<=\))\s+(?=\(\d+\)\s+[A-Za-z])', '|', normalised)
     # Also split on commas/semicolons or contextual separators like "neighbors".
     normalised = re.sub(r'[,;]|\bneighbors?\b', '|', normalised, flags=re.I)
     # Also split on & when followed by a count like (1) or ONE
@@ -313,6 +318,14 @@ def parse_decision(text, url):
     remove_txt   = field_value(r'Removed')
     relocate_txt = field_value(r'(?:Relocated|Transplanted)')
 
+    # Fallback: if remove_txt is empty, try parsing the Reason field for species counts.
+    # The city sometimes puts all tree details in the Reason field only.
+    reason_for_split = reason or ""
+    if not remove_txt and reason_for_split:
+        # Only use reason as remove_txt if it contains count patterns
+        if re.search(r'\b(?:' + '|'.join(WORDNUM) + r')\s*\(\d+\)|\(\d+\)\s+\w', reason_for_split, re.I):
+            remove_txt = reason_for_split
+
     # Strip (prohibited) tagged items from removal/relocation before palm/tree split
     # so they aren't double-counted (they're already captured by prohibited_in_text).
     # Note: prohibited-tagged items are NOT stripped before the palm/tree
@@ -387,8 +400,14 @@ def parse_decision(text, url):
     if not after_the_fact and re.search(r'after.the.fact\s+tree\s+removal', flat, re.I):
         after_the_fact = trees_remove or None
 
-    specimen_remove   = specimen_in_phrase(remove_txt)
+    # Clean version of remove_txt for specimen detection (exclude relocated items)
+    remove_txt_for_specimen = re.sub(r'(?:,|&)\s*[^,&]*\bwas\s+relocated\b[^,&]*', '', remove_txt, flags=re.I).strip(' ,.')
+
+    specimen_remove   = specimen_in_phrase(remove_txt_for_specimen)
     specimen_relocate = specimen_in_phrase(relocate_txt)
+    # Don't count specimen if all trees are dead (dead trees excluded from main count)
+    if specimen_remove and dead_remove and dead_remove >= trees_remove:
+        specimen_remove = None
     prohibited        = prohibited_in_text(flat)
 
     # Count known-prohibited species that appear WITHOUT an explicit (prohibited) tag
@@ -925,7 +944,7 @@ Cc: City of Miami</p>
 </div>
 
 <div id="pane-tracker" class="pane">
-<div class="note">All tree removals. For permits that expired before August 10, 2026 the description was not captured.
+<div class="note">Tree removals since June 2026. Descriptions not captured for permits expired before Aug 10, 2026.
   <button onclick="downloadTrackerCSV()" style="margin-left:12px;padding:5px 12px;font-size:.78rem;background:#0b5e3b;color:#fff;border:0;border-radius:4px;cursor:pointer">⬇ Download CSV</button>
 </div>
 <div class="wrap"><table>
