@@ -975,16 +975,16 @@ const WORDNUMS = {{one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:
   ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,
   seventeen:17,eighteen:18,nineteen:19,twenty:20,'twenty one':21,'twenty two':22,
   'twenty three':23,'twenty four':24,'twenty five':25}};
-const PALM_KW = /\b(palm|palma|palmetto|cycas|sago|sabal|cabbage|coconut|foxtail|christmas|alexander|areca|bamboo|bismarck|bottle|canary|cat|chinese fan|coco|date|european fan|fan|fishtail|hurricane|lady|latania|licuala|livistona|manila|majestic|mediterranean|needle|parlor|paurotis|petticoat|phoenix|piccabeen|pigmy|ponytail|princess|queen|reclinata|red latan|royal|saw palmetto|senegal|silver|solitaire|spindle|sylvester|thatch|triangle|washington|washingtonia|windmill|yellow butterfly|yatay)\b/i;
-const PROH_KW = /\b(mother.s\s+tongue|sansevieria|brazilian pepper|schinus|umbrella(\s+tree)?|schefflera|australian pine|casuarina|frangipani|screw pine)\b/i;
+const PALM_KW = /(palm|palma|palmetto|cycas|sago|sabal|cabbage|coconut|foxtail|christmas|alexander|areca|bamboo|bismarck|bottle|canary|cat|chinese fan|coco|date|european fan|fan|fishtail|hurricane|lady|latania|licuala|livistona|manila|majestic|mediterranean|needle|parlor|paurotis|petticoat|phoenix|piccabeen|pigmy|ponytail|princess|queen|reclinata|red latan|royal|saw palmetto|senegal|silver|solitaire|spindle|sylvester|thatch|triangle|washington|washingtonia|windmill|yellow butterfly|yatay)/i;
+const PROH_KW = /(mothers?\s+tongue|sansevieria|brazilian pepper|schinus|umbrella(\s+tree)?|schefflera|australian pine|casuarina|frangipani|screw pine)/i;
 const NEVER_PROH = /ficus\s+benjamina|weeping\s+fig/i;
-const SPEC_KW = /\bspecimen\b/i;
+const SPEC_KW = /specimen/i;
 
 function parseCountsFromText(txt) {{
   if (!txt || txt === '—') return null;
   let trees = 0, palms = 0, spec = 0, proh = 0;
   // Match patterns like "TWO(2) Areca palms" or "(2) Areca palms" or "TWO (2) Areca palms"
-  const pat = /(?:(?:twenty(?:\s+(?:one|two|three|four|five))?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\s*)?\((\d+)\)\s+([^,(;&\n]+?)(?=\s*(?:[,;&(]|$|\bfrom\b|\blocated\b|\bwithin\b|\binside\b|\bat\b|\bto\b))/gi;
+  const pat = /(?:(?:twenty(?:\s+(?:one|two|three|four|five))?|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\s*)?\((\d+)\)\s+([^,(;&\n]+?)(?=\s*(?:[,;&(]|$|from\s|located\s|within\s|inside\s|at\s|to\s))/gi;
   let m;
   while ((m = pat.exec(txt)) !== null) {{
     const cnt = parseInt(m[1]);
