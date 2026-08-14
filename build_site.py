@@ -145,6 +145,7 @@ def split_palm_tree(phrase):
         r'all\s+located\b.*$', '', phrase, flags=re.I).strip(' ,.')
     phrase = re.sub(r'\bto\s+be\s+(?:removed|relocated|transplanted|pruned)\b', '',
                      phrase, flags=re.I).strip(' ,.')
+    phrase = re.sub(r',?\s*after\s+the\s+fact\.?', '', phrase, flags=re.I).strip(' ,.')
 
     # Normalise: insert a sentinel | before each new item boundary.
     # A new item starts when a word-number + (N) pattern follows a non-start position.
@@ -286,12 +287,13 @@ def parse_decision(text, url):
 
     NEXT = (r'(?=\s*(?:(?:Tree|Palm)\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)\s+'
             r'(?:Removed|Relocated|Pruned|Transplanted|Planted)\s*&?\s*Location[^:]{0,20}:|'
+            r'(?:Tree|Palm)\s*\(?s?\)?\s+\w[\w\s-]*(?:After-the-Fact|after the fact)[^:]*:|'
             r'Number of Replacement|Replacement Tree|Reason For|'
             r'General Description|Trees listed above|Contact|$))')
 
     def field_value(action):
-        # Match labels starting with Tree(s) OR Palm(s) OR just Palm
-        pat = (r'(?:Tree|Palm)\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)\s+' + action +
+        # Match both "Tree(s) To Be Removed" and "Tree(s) Removed After-the-Fact" style labels
+        pat = (r'(?:Tree|Palm)\s*\(?s?\)?\s+(?:(?:to\s+be|that\s+will\s+be)\s+)?' + action +
                r'[^:]*:\s*(.*?)' + NEXT)
         m = re.search(pat, flat, re.I)
         return m.group(1).strip(" .") if m else ""
@@ -359,6 +361,14 @@ def parse_decision(text, url):
     # Split removals and relocations into palms vs trees.
     palms_remove, trees_remove     = split_palm_tree(remove_txt_clean)
     palms_relocate, trees_relocate = split_palm_tree(relocate_txt_clean)
+
+    # Fallback: if Reason says sick/diseased/dead and no inline (Dead) tag, count all as dead.
+    if not dead_remove and reason and re.search(r'\b(?:sick|diseased|dead)\b', reason, re.I):
+        dead_remove = trees_remove or None
+
+    # Also check General Description for after-the-fact — use full flat text search
+    if not after_the_fact and re.search(r'after.the.fact\s+tree\s+removal', flat, re.I):
+        after_the_fact = trees_remove or None
 
     specimen_remove   = specimen_in_phrase(remove_txt)
     specimen_relocate = specimen_in_phrase(relocate_txt)
@@ -881,7 +891,8 @@ Cc: City of Miami</p>
 <div class="wrap"><table>
 <thead><tr class="tracker-totals-row">
   <th>Address</th>
-  <th>Species text (removal)</th>
+  <th>Reason</th>
+  <th>Description</th>
   <th>Non-prohibited<br>trees removed<br><span id="tracker-total-trees" class="tracker-total">—</span></th>
   <th>Of them,<br>specimen<br><span id="tracker-total-specimen" class="tracker-total">—</span></th>
   <th>Palms<br>removed<br><span id="tracker-total-palms" class="tracker-total">—</span></th>
@@ -896,7 +907,8 @@ Cc: City of Miami</p>
 <div class="wrap"><table>
 <thead><tr class="tracker-totals-row">
   <th>Address</th>
-  <th>Species text (removal)</th>
+  <th>Reason</th>
+  <th>Description</th>
   <th>Non-prohibited<br>trees removed<br><span id="tracker-pre-total-trees" class="tracker-total">—</span></th>
   <th>Of them,<br>specimen<br><span id="tracker-pre-total-specimen" class="tracker-total">—</span></th>
   <th>Palms<br>removed<br><span id="tracker-pre-total-palms" class="tracker-total">—</span></th>
@@ -919,8 +931,20 @@ function trackerRow(r) {{
   const palms   = parseInt(r.palms_remove)    || 0;
   const spec    = parseInt(r.specimen_remove) || 0;
   const proh    = parseInt(r.prohibited)      || 0;
-  const atf     = parseInt(r.after_the_fact)  || 0;
-  const dead    = parseInt(r.dead_remove)     || 0;
+  const reason  = (r.reason || '').toLowerCase();
+
+  // Infer dead trees from reason if not stored (pre-Aug entries)
+  let dead = parseInt(r.dead_remove) || 0;
+  if (!dead && /sick|diseased|dead/.test(reason)) {{
+    dead = trees; // whole permit is dead/diseased trees
+  }}
+
+  // Infer after_the_fact from reason if not stored
+  let atf = parseInt(r.after_the_fact) || 0;
+  if (!atf && /after.the.fact|without permit|without a permit|removed without|unpermitted/.test(reason)) {{
+    atf = trees + palms || 0;
+  }}
+
   const nonProh = Math.max(0, trees - proh - dead);
 
   const addrCell = r.url
@@ -930,6 +954,7 @@ function trackerRow(r) {{
   return {{
     html: `<tr>
 <td class="addr">${{addrCell}}<div class="app">${{esc(r.appno)}}</div></td>
+<td class="tracker-species">${{esc(r.reason || '—')}}</td>
 <td class="tracker-species">${{esc(r.remove_txt || '—')}}</td>
 <td class="tracker-num">${{nonProh || '—'}}</td>
 <td class="tracker-num">${{spec    || '—'}}</td>
@@ -955,7 +980,7 @@ function renderTracker() {{
       return d.html;
     }});
     const tbody = document.getElementById(tbodyId);
-    const cols  = 7;
+    const cols  = 8;
     tbody.innerHTML = html.join('') ||
       `<tr><td colspan="${{cols}}" style="text-align:center;color:#888;padding:24px">No records.</td></tr>`;
     document.getElementById(prefix + 'total-trees').textContent     = tT;
@@ -976,15 +1001,17 @@ function renderTracker() {{
 function downloadTrackerCSV() {{
   const withText = allDecisions.filter(r => r.remove_txt && r.remove_txt !== '—');
   const headers  = ['Address', 'App #', 'Date posted', 'Appeal by',
-                    'Species text (removal)',
+                    'Reason', 'Description (species text)',
                     'Non-prohibited trees removed', 'Of them specimen',
                     'Palms removed', 'Prohibited', 'After the fact', 'Dead trees'];
   const rows = withText.map(r => {{
     const trees = parseInt(r.trees_remove) || 0;
     const proh  = parseInt(r.prohibited)   || 0;
     const dead  = parseInt(r.dead_remove)  || 0;
+    const atf   = parseInt(r.after_the_fact) || 0;
     return [
       r.address || '', r.appno || '', r.issued || '', r.appeal || '',
+      r.reason || '',
       r.remove_txt || '',
       Math.max(0, trees - proh - dead),
       r.specimen_remove ?? '',
