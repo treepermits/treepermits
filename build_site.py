@@ -155,6 +155,8 @@ def split_palm_tree(phrase):
         '|', phrase, flags=re.I)
     # Also split on commas/semicolons or contextual separators like "neighbors".
     normalised = re.sub(r'[,;]|\bneighbors?\b', '|', normalised, flags=re.I)
+    # Also split on & when followed by a count like (1) or ONE
+    normalised = re.sub(r'\s*&\s*(?=\(?\d+\)?|\b(?:' + word_nums + r')\b)', '|', normalised, flags=re.I)
     items = [i.strip() for i in normalised.split('|') if i.strip()]
 
     palms = 0
@@ -208,9 +210,27 @@ def prohibited_in_text(flat):
     1. Inline tag: 'ONE(1) Brazilian Pepper (prohibited species)'
     2. Species name: 'FOUR (4) Prohibited species trees'
     Per user instruction: always count when the word 'prohibited' appears,
-    since the city only uses it in the context of prohibited trees."""
+    since the city only uses it in the context of prohibited trees.
+    Exception: species in NEVER_PROHIBITED are always counted as regular trees
+    regardless of how the city labels them."""
     if "prohibited" not in flat.lower():
         return None
+
+    # Species that should never be counted as prohibited regardless of city labeling.
+    NEVER_PROHIBITED = [r'ficus\s+benjamina', r'weeping\s+fig']
+
+    # Count how many "never prohibited" items appear tagged as (prohibited).
+    never_count = 0
+    for pat in NEVER_PROHIBITED:
+        for m in re.finditer(pat + r'[^(]*\(\s*prohibited[^)]*\)', flat, re.I):
+            head = flat[:m.start()]
+            cm = re.findall(r'\((\d+)\)|\b(' + "|".join(WORDNUM) + r')\b', head, re.I)
+            if cm:
+                last = cm[-1]
+                never_count += int(last[0]) if last[0] else WORDNUM.get(last[1].lower(), 1)
+            else:
+                never_count += 1
+
     total = 0
     # Pattern 1: (prohibited...) tag after a count+species
     for m in re.finditer(r'\(\s*prohibited[^)]*\)', flat, re.I):
@@ -226,12 +246,14 @@ def prohibited_in_text(flat):
             r'(?:(' + "|".join(WORDNUM) + r')\s*)?\((\d+)\)\s+Prohibited'
             r'|(' + "|".join(WORDNUM) + r')\s+Prohibited',
             flat, re.I):
-        if m.group(2):          # (N) Prohibited
+        if m.group(2):
             total += int(m.group(2))
-        elif m.group(1):        # WORD (N) Prohibited
+        elif m.group(1):
             total += int(m.group(2)) if m.group(2) else WORDNUM.get(m.group(1).lower(), 1)
-        elif m.group(3):        # WORD Prohibited
+        elif m.group(3):
             total += WORDNUM.get(m.group(3).lower(), 1)
+
+    total = max(0, total - never_count)
     return total if total else None
 
 # ---------------------------------------------------------------------------
@@ -263,7 +285,7 @@ def parse_decision(text, url):
     reason = re.sub(r'\s*\*+\s*$', '', reason).strip(" .") if reason else ""
 
     NEXT = (r'(?=\s*(?:(?:Tree|Palm)\s*\(?s?\)?\s+(?:to\s+be|that\s+will\s+be)\s+'
-            r'(?:Removed|Relocated|Pruned|Transplanted)\s*&?\s*Location[^:]{0,20}:|'
+            r'(?:Removed|Relocated|Pruned|Transplanted|Planted)\s*&?\s*Location[^:]{0,20}:|'
             r'Number of Replacement|Replacement Tree|Reason For|'
             r'General Description|Trees listed above|Contact|$))')
 
@@ -341,6 +363,10 @@ def parse_decision(text, url):
     specimen_remove   = specimen_in_phrase(remove_txt)
     specimen_relocate = specimen_in_phrase(relocate_txt)
     prohibited        = prohibited_in_text(flat)
+    # Fallback: if Reason field says "Prohibited Species" but no inline tag found,
+    # count all removed trees as prohibited (city sometimes flags via Reason only).
+    if prohibited is None and reason and re.search(r'\bprohibited\s+species\b', reason, re.I):
+        prohibited = trees_remove + palms_remove or None
 
     return {
         "address":           address,
@@ -849,10 +875,9 @@ Cc: City of Miami</p>
 </div>
 
 <div id="pane-tracker" class="pane">
-<div class="note">All tree removals for which full text was captured (starting Aug 10, 2026). Click an address to open the original notice.
-  <button onclick="downloadTrackerCSV('tracker')" style="margin-left:12px;padding:5px 12px;font-size:.78rem;background:#0b5e3b;color:#fff;border:0;border-radius:4px;cursor:pointer">⬇ Download CSV</button>
+<div class="note">All tree removals for which full text was captured (starting Aug 10, 2026).
+  <button onclick="downloadTrackerCSV()" style="margin-left:12px;padding:5px 12px;font-size:.78rem;background:#0b5e3b;color:#fff;border:0;border-radius:4px;cursor:pointer">⬇ Download CSV</button>
 </div>
-<div class="note" style="color:#b05000;font-style:italic">⚠ Intended decisions inconsistently identify Ficus benjamina as either prohibited or not, which affects the count.</div>
 <div class="wrap"><table>
 <thead><tr class="tracker-totals-row">
   <th>Address</th>
@@ -868,7 +893,6 @@ Cc: City of Miami</p>
 
 <div id="pane-tracker-pre" class="pane">
 <div class="note">Decisions that expired before full text capture was implemented. Species text not available.</div>
-<div class="note" style="color:#b05000;font-style:italic">⚠ Intended decisions inconsistently identify Ficus benjamina as either prohibited or not, which affects the count.</div>
 <div class="wrap"><table>
 <thead><tr class="tracker-totals-row">
   <th>Address</th>
@@ -877,7 +901,7 @@ Cc: City of Miami</p>
   <th>Of them,<br>specimen<br><span id="tracker-pre-total-specimen" class="tracker-total">—</span></th>
   <th>Palms<br>removed<br><span id="tracker-pre-total-palms" class="tracker-total">—</span></th>
   <th>Prohibited<br><span id="tracker-pre-total-prohibited" class="tracker-total">—</span></th>
-  <th>After<br>the fact<br><span id="tracker-pre-total-atf" class="tracker-total">—</span></th>
+  <th>After the fact<br>(not counted)<br><span id="tracker-pre-total-atf" class="tracker-total">—</span></th>
 </tr></thead>
 <tbody id="tbody-tracker-pre"></tbody>
 </table></div></div>
