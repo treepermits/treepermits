@@ -153,7 +153,9 @@ def split_palm_tree(phrase):
     # phantom item.
     phrase = re.sub(
         r'(?:to\s+be\s+(?:removed|relocated|transplanted|pruned)\s*,?\s*)?'
-        r'all\s+located\b.*$', '', phrase, flags=re.I).strip(' ,.')
+        r'all\s+located\b[^.]*', '', phrase, flags=re.I)
+    phrase = re.sub(r'[,\s]+\.', '.', phrase)  # clean up ", ." residue
+    phrase = phrase.strip(' ,.')
     phrase = re.sub(r'\bto\s+be\s+(?:removed|relocated|transplanted|pruned)\b', '',
                      phrase, flags=re.I).strip(' ,.')
     phrase = re.sub(r',?\s*after\s+the\s+fact\.?', '', phrase, flags=re.I).strip(' ,.')
@@ -170,8 +172,11 @@ def split_palm_tree(phrase):
     normalised = re.sub(
         r'(?<=[\w).])\s+(?=(?:' + word_nums + r')\s*\(\d+\)|(?:' + word_nums + r')\s+\d)',
         '|', phrase, flags=re.I)
-    # Also split before bare (N) count after a closing paren only (safe case)
+    # Also split before bare (N) count after a closing paren
     normalised = re.sub(r'(?<=\))\s+(?=\(\d+\)\s+[A-Za-z])', '|', normalised)
+    # When phrase itself starts with bare (N), also split on word-char + space + (N)
+    if re.match(r'^\s*\(\d+\)', phrase):
+        normalised = re.sub(r'(?<=[a-zA-Z])\s+(?=\(\d+\)\s+[A-Za-z])', '|', normalised)
     # Also split on commas/semicolons or contextual separators like "neighbors".
     normalised = re.sub(r'[,;]|\bneighbors?\b', '|', normalised, flags=re.I)
     # Also split on & when followed by a count like (1) or ONE
@@ -320,8 +325,12 @@ def parse_decision(text, url):
 
     # Fallback: if remove_txt is empty, try parsing the Reason field for species counts.
     # The city sometimes puts all tree details in the Reason field only.
+    # But NOT for pruning-only permits.
     reason_for_split = reason or ""
-    if not remove_txt and reason_for_split:
+    is_pruning_only = (not field_value(r'Removed') and
+                       bool(re.search(r'\bpruned?\b', flat, re.I)) and
+                       not re.search(r'\bremov', flat, re.I))
+    if not remove_txt and reason_for_split and not is_pruning_only:
         # Only use reason as remove_txt if it contains count patterns
         if re.search(r'\b(?:' + '|'.join(WORDNUM) + r')\s*\(\d+\)|\(\d+\)\s+\w', reason_for_split, re.I):
             remove_txt = reason_for_split
@@ -415,9 +424,9 @@ def parse_decision(text, url):
     if remove_txt and remove_txt != '—':
         for pat in KNOWN_PROHIBITED:
             for m in re.finditer(pat, remove_txt, re.I):
-                # Skip if followed by a (prohibited...) tag — already counted
-                after = remove_txt[m.end():m.end()+30]
-                if re.search(r'^\s*\(\s*prohibited', after, re.I):
+                # Skip if immediately followed (allowing plural suffix + space) by a (prohibited...) tag
+                after = remove_txt[m.end():m.end()+40]
+                if re.search(r'^\w*\s*\(\s*prohibited', after, re.I):
                     continue
                 head = remove_txt[:m.start()]
                 cm = re.findall(r'\((\d+)\)|\b(' + '|'.join(WORDNUM) + r')\b', head, re.I)
@@ -431,7 +440,7 @@ def parse_decision(text, url):
 
     # Fallback: if Reason says "Prohibited Species" but no inline tag found,
     # count all removed trees as prohibited.
-    if prohibited is None and reason and re.search(r'\bprohibited\s+species\b', reason, re.I):
+    if prohibited is None and reason and re.search(r'\bprohibited\s+(?:tree\s+)?species\b', reason, re.I):
         prohibited = trees_remove + palms_remove or None
 
     # ATF should exclude prohibited species (they don't need a permit anyway).
@@ -980,6 +989,10 @@ const WN = {{one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:
 
 function parseCountsFromText(txt) {{
   if (!txt || txt === '\u2014') return null;
+  // Skip pruning-only text
+  if (/pruned?\s+more\s+than|tree\(s\)\s+pruned/i.test(txt) && !/remov/i.test(txt)) return null;
+  // Strip relocated items before counting
+  txt = txt.replace(/(?:,|&)\s*[^,&]*was\s+relocated(\s|$)[^,&]*/gi, '');
   let trees = 0, palms = 0, spec = 0, proh = 0;
   // Match count patterns anywhere in the text: "TWO(2) Species" or "(2) Species"
   const pat = new RegExp(
