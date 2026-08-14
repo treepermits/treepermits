@@ -287,6 +287,24 @@ def parse_decision(text, url):
 
     m_repl = re.search(r'(?:Number of Replacement Trees?|Replacement Trees?)[^:]*:\s*(.*?)' + NEXT, flat, re.I)
     replace_txt = m_repl.group(1).strip(" .") if m_repl else ""
+    # Detect after-the-fact removals — count trees tagged "after the fact" in removal text.
+    def after_the_fact_count(txt):
+        if not txt or 'after the fact' not in txt.lower():
+            return 0
+        total = 0
+        for m in re.finditer(r'after\s+the\s+fact', txt, re.I):
+            # Look backwards for the nearest count
+            head = txt[:m.start()]
+            cm = re.findall(r'\((\d+)\)|\b(' + '|'.join(WORDNUM) + r')\b', head, re.I)
+            if cm:
+                last = cm[-1]
+                total += int(last[0]) if last[0] else WORDNUM.get(last[1].lower(), 1)
+            else:
+                total += 1
+        return total or None
+
+    after_the_fact = after_the_fact_count(remove_txt) or after_the_fact_count(reason) or None
+
     replace_txt = re.sub(r'\s*\*+\s*$', '', replace_txt).strip(" .")
 
     # Split removals and relocations into palms vs trees.
@@ -304,6 +322,8 @@ def parse_decision(text, url):
         "appno":             appno or "",
         "url":               url,
         "reason":            reason or "—",
+        "remove_txt":        remove_txt or "—",
+        "relocate_txt":      relocate_txt or "—",
         "trees_remove":      trees_remove,
         "palms_remove":      palms_remove,
         "trees_relocate":    trees_relocate,
@@ -311,6 +331,7 @@ def parse_decision(text, url):
         "specimen_remove":   specimen_remove,
         "specimen_relocate": specimen_relocate,
         "prohibited":        prohibited,
+        "after_the_fact":    after_the_fact,
         "replacements":      replace_txt or "—",
     }
 
@@ -466,7 +487,12 @@ def render(ts, n_total):
  tr.red{{background:var(--red)}} tr.red td:first-child{{border-left:4px solid var(--redb)}}
  tr.orange{{background:var(--org)}} tr.orange td:first-child{{border-left:4px solid var(--orgb)}}
  tr.yellow{{background:var(--yel)}} tr.yellow td:first-child{{border-left:4px solid var(--yelb)}}
- .note{{padding:8px 22px;font-size:.78rem;color:#666}}
+ .tracker-totals-row th{{background:#0b5e3b;color:#fff;font-size:.8rem;text-align:center;position:sticky;top:0}}
+ .tracker-totals-row th:first-child{{text-align:left}}
+ .tracker-total{{display:block;font-size:1.1rem;font-weight:700;margin-top:2px}}
+ td.tracker-species{{max-width:320px;font-size:.78rem;color:#444}}
+ td.tracker-num{{text-align:center;font-size:.88rem}}
+ td.tracker-atf{{text-align:center;font-size:.88rem;color:#c0392b;font-weight:600}}
  .gs-banner{{padding:6px 22px;font-size:.78rem;background:#e8f5e9;color:#1b5e20;border-bottom:1px solid #c8e6c9}}
  .gs-banner a{{color:#0b5e3b}}
  #loading{{padding:40px;text-align:center;color:#888}}
@@ -517,6 +543,7 @@ def render(ts, n_total):
 <div class="tabs">
   <div class="tab active" onclick="switchTab('active',this)" id="tab-active">Active decisions</div>
   <div class="tab" onclick="switchTab('expired',this)" id="tab-expired">Expired decisions</div>
+  <div class="tab" onclick="switchTab('tracker',this)" id="tab-tracker">Removal tracker</div>
 </div>
 
 <div id="pane-active" class="pane active">
@@ -792,10 +819,104 @@ Cc: City of Miami</p>
 </div>
 </div>
 
+<div id="pane-tracker" class="pane">
+<div class="note">All tree removals posted since August 10, 2026. Click an address to open the original notice.
+  <button onclick="downloadTrackerCSV()" style="margin-left:12px;padding:5px 12px;font-size:.78rem;background:#0b5e3b;color:#fff;border:0;border-radius:4px;cursor:pointer">⬇ Download CSV</button>
+</div>
+<div class="wrap"><table id="tracker-table">
+<thead>
+<tr class="tracker-totals-row">
+  <th>Address</th>
+  <th>Trees removed<br><span id="tracker-total-trees" class="tracker-total">—</span></th>
+  <th>Specimen removed<br><span id="tracker-total-specimen" class="tracker-total">—</span></th>
+  <th>After the fact<br><span id="tracker-total-atf" class="tracker-total">—</span></th>
+</tr>
+</thead>
+<tbody id="tbody-tracker"></tbody>
+</table></div></div>
+
 <script>
 // ── Helpers ────────────────────────────────────────────────────────────────
 function esc(s) {{
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}}
+
+// ── Tracker rendering ──────────────────────────────────────────────────────
+function renderTracker() {{
+  const tbody = document.getElementById('tbody-tracker');
+  if (!tbody) return;
+
+  let totalTrees = 0, totalSpecimen = 0, totalAtf = 0;
+  const rows = allDecisions.map(r => {{
+    const trees = (parseInt(r.trees_remove)||0) + (parseInt(r.palms_remove)||0);
+    const spec  = parseInt(r.specimen_remove) || 0;
+    const atf   = parseInt(r.after_the_fact)  || 0;
+    totalTrees   += trees;
+    totalSpecimen += spec;
+    totalAtf     += atf;
+
+    const addrCell = r.url
+      ? `<a href="${{esc(r.url)}}" target="_blank">${{esc(r.address)}}</a>`
+      : esc(r.address);
+    const specCell = spec > 0 ? spec : '—';
+    const atfCell  = atf  > 0 ? atf  : '—';
+    const treesCell = trees > 0
+      ? `${{trees}} (${{parseInt(r.trees_remove)||0}} trees, ${{parseInt(r.palms_remove)||0}} palms)`
+      : '—';
+
+    return `<tr>
+<td class="addr">${{addrCell}}<div class="app">${{esc(r.appno)}}</div></td>
+<td class="tracker-num">${{treesCell}}<div class="tracker-species">${{esc(r.remove_txt||'—')}}</div></td>
+<td class="tracker-num">${{specCell}}</td>
+<td class="tracker-atf">${{atfCell}}</td>
+</tr>`;
+  }});
+
+  tbody.innerHTML = rows.join('') ||
+    '<tr><td colspan="4" style="text-align:center;color:#888;padding:24px">No records yet.</td></tr>';
+
+  document.getElementById('tracker-total-trees').textContent   = totalTrees;
+  document.getElementById('tracker-total-specimen').textContent = totalSpecimen || '0';
+  document.getElementById('tracker-total-atf').textContent     = totalAtf || '0';
+  document.getElementById('tab-tracker').textContent = `Removal tracker (${{allDecisions.length}})`;
+}}
+
+// ── Download tracker as CSV ────────────────────────────────────────────────
+function downloadTrackerCSV() {{
+  const headers = ['Address', 'App #', 'Date posted', 'Appeal by',
+                   'Trees removed', 'Palms removed', 'Total removed',
+                   'Specimen removed', 'After the fact', 'Species text (removal)'];
+  const rows = allDecisions.map(r => [
+    r.address || '',
+    r.appno   || '',
+    r.issued  || '',
+    r.appeal  || '',
+    r.trees_remove  ?? '',
+    r.palms_remove  ?? '',
+    (parseInt(r.trees_remove)||0) + (parseInt(r.palms_remove)||0),
+    r.specimen_remove  ?? '',
+    r.after_the_fact   ?? '',
+    r.remove_txt || '',
+  ]);
+
+  // Build CSV — quote fields containing commas/newlines/quotes.
+  function csvField(v) {{
+    const s = String(v ?? '');
+    return (s.includes(',') || s.includes('"') || s.includes('\\n'))
+      ? '"' + s.replace(/"/g, '""') + '"'
+      : s;
+  }}
+  const csv = [headers, ...rows]
+    .map(row => row.map(csvField).join(','))
+    .join('\\n');
+
+  const blob = new Blob([csv], {{ type: 'text/csv;charset=utf-8;' }});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'miami-tree-removal-tracker.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }}
 function ns(v) {{
   return (v===null||v===undefined||v==='')?'not stated':esc(String(v));
@@ -993,6 +1114,7 @@ async function init() {{
   await loadSheet();
   // Render everything.
   renderTables();
+  renderTracker();
 }}
 
 init();
@@ -1027,4 +1149,3 @@ def main():
 if __name__ == "__main__":
     main()
     ts    = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-
