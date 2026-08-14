@@ -79,7 +79,7 @@
 </header>
 <div class="bar">
   <button onclick="location.reload(true)">↻ Refresh</button>
-  <span class="meta">Data updated 2026-08-14 06:25:09 UTC &nbsp;•&nbsp; 123 decisions on record</span>
+  <span class="meta">Data updated 2026-08-14 06:41:51 UTC &nbsp;•&nbsp; 123 decisions on record</span>
   <span class="legend">
     <span class="lg-red">tree removal 8+</span>
     <span class="lg-org">tree removal 5–7 or relocation 7+ (w/ removals)</span>
@@ -407,6 +407,10 @@ const WN = {one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:1
 
 function parseCountsFromText(txt) {
   if (!txt || txt === '—') return null;
+  // Skip pruning-only text
+  if (/pruned?\s+more\s+than|tree\(s\)\s+pruned/i.test(txt) && !/remov/i.test(txt)) return null;
+  // Strip relocated items before counting
+  txt = txt.replace(/(?:,|&)\s*[^,&]*was\s+relocated(\s|$)[^,&]*/gi, '');
   let trees = 0, palms = 0, spec = 0, proh = 0;
   // Match count patterns anywhere in the text: "TWO(2) Species" or "(2) Species"
   const pat = new RegExp(
