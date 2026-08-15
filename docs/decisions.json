@@ -1,5 +1,22 @@
 [
   {
+    "address": "2819 EMATHLA ST",
+    "issued": "",
+    "appeal": "",
+    "appno": "",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2819-EMATHLA-ST",
+    "reason": "(parse error: Could not fetch https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2819-EMATHLA-ST.\n  requests: requests got HTTP 403 (len 546)\n  playwright: Page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2819-EMATHLA-ST\", waiting until \"networkidle\"\n)",
+    "trees_remove": 0,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "replacements": "—",
+    "tier": ""
+  },
+  {
     "address": "3690 SW 23 TER",
     "issued": "08/18/2026",
     "appeal": "08/28/2026",
@@ -16,6 +33,8 @@
     "specimen_relocate": null,
     "prohibited": 4,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "(8) Hardwoods to be planted within the lot & (1) Green Buttonwood to be planted within the Right-of-Way (Article 9)",
     "tier": ""
@@ -37,6 +56,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "EIGHT(8) Hardwoods to be planted inside the subject property. FIVE(5) Hardwoods on the Right of Way",
     "tier": "red"
@@ -58,30 +79,11 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": 1,
+    "atf_trees": 1,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "ONE(1) hardwood native tree within the lot",
     "tier": ""
-  },
-  {
-    "address": "2819 EMATHLA ST",
-    "issued": "08/18/2026",
-    "appeal": "08/28/2026",
-    "appno": "BD25-015736-001",
-    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2819-EMATHLA-ST",
-    "reason": "Trees were relocated & removed onsite without permitting, Right-of-Way planting & Tree(s) located within the buildable footprint of New Construction",
-    "remove_txt": "(1) Hongkong Orchid (1) False Mastic was removed from within the lot & (1) Live Oak (Specimen) was relocated within the lot",
-    "relocate_txt": "(1) Live Oak (Specimen) After-the-Fact root prune & to be relocated to the rear of the lot",
-    "trees_remove": 2,
-    "palms_remove": 0,
-    "trees_relocate": 1,
-    "palms_relocate": 0,
-    "specimen_remove": null,
-    "specimen_relocate": 1,
-    "prohibited": null,
-    "after_the_fact": 2,
-    "dead_remove": null,
-    "replacements": "(11) Hardwoods to be planted within the lot & (1) Live Oak to be planted within the Right-of-way",
-    "tier": "yellow"
   },
   {
     "address": "1377 NW 30 ST",
@@ -100,6 +102,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": 1,
+    "atf_trees": 1,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "FOUR(4) Hardwood native trees within the lot",
     "tier": ""
@@ -121,6 +125,8 @@
     "specimen_relocate": null,
     "prohibited": 3,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "(6) Hardwoods to be planted within the lot",
     "tier": "orange"
@@ -142,6 +148,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "Not applicable",
     "tier": ""
@@ -163,6 +171,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "contribution into the tree trust fund",
     "tier": ""
@@ -184,6 +194,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "SEVEN (7) Hardwoods throughout the lot",
     "tier": "yellow"
@@ -205,6 +217,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "TWO(2) HARDWOOD TREES. To be planted within the lot",
     "tier": ""
@@ -226,6 +240,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "—",
     "tier": ""
@@ -247,6 +263,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": 1,
     "replacements": "N/A",
     "tier": ""
@@ -268,6 +286,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": 1,
     "replacements": "N/A",
     "tier": ""
@@ -289,6 +309,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "ONE (1) Hardwood throughout the lot",
     "tier": ""
@@ -310,6 +332,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": 2,
     "replacements": "—",
     "tier": ""
@@ -331,6 +355,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": 1,
     "replacements": "—",
     "tier": ""
@@ -352,6 +378,8 @@
     "specimen_relocate": null,
     "prohibited": null,
     "after_the_fact": 9,
+    "atf_trees": 4,
+    "atf_palms": 5,
     "dead_remove": null,
     "replacements": "FIFTEEN(15) hardwood native trees, FOUR(4) palm trees within the lot and a Contribution to the Tree Trust Fund",
     "tier": "yellow"
@@ -373,6 +401,8 @@
     "specimen_relocate": null,
     "prohibited": 2,
     "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
     "dead_remove": null,
     "replacements": "FOUR(4) HARDWOOD TREES. To be planted within the lot",
     "tier": "orange"
