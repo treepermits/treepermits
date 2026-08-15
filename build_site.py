@@ -447,6 +447,10 @@ def parse_decision(text, url):
     if after_the_fact and prohibited:
         after_the_fact = max(0, after_the_fact - prohibited) or None
 
+    # Split ATF into trees vs palms
+    atf_trees = min(after_the_fact or 0, max(0, trees_remove - (prohibited or 0))) or None
+    atf_palms = max(0, (after_the_fact or 0) - (atf_trees or 0)) or None
+
     return {
         "address":           address,
         "issued":            issued,
@@ -464,6 +468,8 @@ def parse_decision(text, url):
         "specimen_relocate": specimen_relocate,
         "prohibited":        prohibited,
         "after_the_fact":    after_the_fact,
+        "atf_trees":         atf_trees,
+        "atf_palms":         atf_palms,
         "dead_remove":       dead_remove,
         "replacements":      replace_txt or "—",
     }
@@ -965,7 +971,8 @@ Cc: City of Miami</p>
   <th>Of them,<br>specimen<br><span id="tracker-total-specimen" class="tracker-total">—</span></th>
   <th>Palms<br>removed<br><span id="tracker-total-palms" class="tracker-total">—</span></th>
   <th>Prohibited<br><span id="tracker-total-prohibited" class="tracker-total">—</span></th>
-  <th>After<br>the fact<br><span id="tracker-total-atf" class="tracker-total">—</span></th>
+  <th>After the fact<br>trees<br><span id="tracker-total-atf-trees" class="tracker-total">—</span></th>
+  <th>After the fact<br>palms<br><span id="tracker-total-atf-palms" class="tracker-total">—</span></th>
 </tr></thead>
 <tbody id="tbody-tracker"></tbody>
 </table></div></div>
@@ -1007,10 +1014,11 @@ function parseCountsFromText(txt) {{
     if (!cnt || !species) continue;
     const afterMatch = txt.slice(m.index + m[0].length);
     const explicitTag = /^\s*\(\s*prohibited/i.test(afterMatch);
+    const specimenTag = /^\s*\(\s*specimen/i.test(afterMatch);
     const isProh = !NEVER_PROH.test(species) &&
                    (PROH_KW.test(species) || explicitTag);
     const isPalm = PALM_KW.test(species);
-    const isSpec = SPEC_KW.test(species);
+    const isSpec = SPEC_KW.test(species) || specimenTag;
     if (isProh) {{ proh += cnt; trees += cnt; }}
     else if (isPalm) {{ palms += cnt; }}
     else {{ trees += cnt; }}
@@ -1037,6 +1045,11 @@ function trackerRow(r) {{
     }}
   }}
 
+  // Infer prohibited from reason even when trees are stored (e.g. "Prohibited Species")
+  if (!proh && /prohibited\s+(?:tree\s+)?species/i.test(reasonRaw)) {{
+    proh = trees + palms || 0;
+  }}
+
   // Infer dead trees from reason if not stored (pre-Aug entries)
   let dead = parseInt(r.dead_remove) || 0;
   if (!dead && /sick|diseased|dead/.test(reason)) {{
@@ -1047,6 +1060,13 @@ function trackerRow(r) {{
   let atf = parseInt(r.after_the_fact) || 0;
   if (!atf && /after.the.fact|without permit|without a permit|removed without|unpermitted/.test(reason)) {{
     atf = Math.max(0, trees + palms - proh) || 0;
+  }}
+  // Split ATF into trees vs palms
+  let atfTrees = parseInt(r.atf_trees) || 0;
+  let atfPalms = parseInt(r.atf_palms) || 0;
+  if (!atfTrees && !atfPalms && atf) {{
+    atfTrees = Math.min(atf, Math.max(0, trees - proh));
+    atfPalms = Math.max(0, atf - atfTrees);
   }}
 
   // Dead specimen trees don't count in specimen
@@ -1067,9 +1087,10 @@ function trackerRow(r) {{
 <td class="tracker-num">${{spec    || '—'}}</td>
 <td class="tracker-num">${{palms   || '—'}}</td>
 <td class="tracker-num">${{proh    || '—'}}</td>
-<td class="tracker-atf">${{atf     || '—'}}</td>
+<td class="tracker-atf">${{atfTrees || '—'}}</td>
+<td class="tracker-atf">${{atfPalms || '—'}}</td>
 </tr>`,
-    nonProh, spec, palms, proh, atf
+    nonProh, spec, palms, proh, atfTrees, atfPalms
   }};
 }}
 
@@ -1077,21 +1098,23 @@ function renderTracker() {{
   const tbody = document.getElementById('tbody-tracker');
   if (!tbody) return;
 
-  let tT=0, tS=0, tP=0, tPr=0, tAtf=0;
+  let tT=0, tS=0, tP=0, tPr=0, tAtfT=0, tAtfP=0;
   const html = allDecisions.map(r => {{
     const d = trackerRow(r);
-    tT += d.nonProh; tS += d.spec; tP += d.palms; tPr += d.proh; tAtf += d.atf;
+    tT += d.nonProh; tS += d.spec; tP += d.palms; tPr += d.proh;
+    tAtfT += d.atfTrees; tAtfP += d.atfPalms;
     return d.html;
   }});
 
   tbody.innerHTML = html.join('') ||
-    `<tr><td colspan="8" style="text-align:center;color:#888;padding:24px">No records.</td></tr>`;
+    `<tr><td colspan="9" style="text-align:center;color:#888;padding:24px">No records.</td></tr>`;
 
   document.getElementById('tracker-total-trees').textContent      = tT;
   document.getElementById('tracker-total-specimen').textContent   = tS;
   document.getElementById('tracker-total-palms').textContent      = tP;
   document.getElementById('tracker-total-prohibited').textContent = tPr;
-  document.getElementById('tracker-total-atf').textContent        = tAtf;
+  document.getElementById('tracker-total-atf-trees').textContent  = tAtfT;
+  document.getElementById('tracker-total-atf-palms').textContent  = tAtfP;
   document.getElementById('tab-tracker').textContent = `Removal tracker (${{allDecisions.length}})`;
 }}
 
@@ -1101,7 +1124,8 @@ function downloadTrackerCSV() {{
   const headers  = ['Address', 'App #', 'Date posted', 'Appeal by',
                     'Reason', 'Description (species text)',
                     'Non-prohibited trees removed', 'Of them specimen',
-                    'Palms removed', 'Prohibited', 'After the fact', 'Dead trees'];
+                    'Palms removed', 'Prohibited',
+                    'After the fact trees', 'After the fact palms', 'Dead trees'];
   const rows = withText.map(r => {{
     const trees = parseInt(r.trees_remove) || 0;
     const proh  = parseInt(r.prohibited)   || 0;
@@ -1114,7 +1138,10 @@ function downloadTrackerCSV() {{
       Math.max(0, trees - proh - dead),
       r.specimen_remove ?? '',
       r.palms_remove    ?? '',
-      proh, r.after_the_fact ?? '', dead,
+      proh,
+      r.atf_trees ?? '',
+      r.atf_palms ?? '',
+      dead,
     ];
   }});
 
