@@ -1,5 +1,22 @@
 [
   {
+    "address": "3201 DAY AV",
+    "issued": "",
+    "appeal": "",
+    "appno": "",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3201-DAY-AV",
+    "reason": "(parse error: Could not fetch https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3201-DAY-AV.\n  requests: requests got HTTP 403 (len 538)\n  playwright: Page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3201-DAY-AV\", waiting until \"networkidle\"\n)",
+    "trees_remove": 0,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "replacements": "—",
+    "tier": ""
+  },
+  {
     "address": "3821 BRAGANZA AV",
     "issued": "09/01/2026",
     "appeal": "09/11/2026",
@@ -343,29 +360,6 @@
     "dead_remove": null,
     "replacements": "(8) Hardwoods to be planted within the lot & (1) Green Buttonwood to be planted within the Right-of-Way (Article 9)",
     "tier": ""
-  },
-  {
-    "address": "3201 DAY AV",
-    "issued": "08/18/2026",
-    "appeal": "08/28/2026",
-    "appno": "BD25-025864-001",
-    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3201-DAY-AV",
-    "reason": "Trees in the buildable footprint",
-    "remove_txt": "FOUR(4) Gumbo Limbo, ONE(1) Surinam Cherry, ONE(1) Starfruit Tree, TWO(2) Coconut Palms, ONE(1) Tropical Almond, ONE(1) Longan Tree, ONE(1) Tabebuia spp, all located within the subject property. ONE(1) Ficus benjamina for the Right of Way",
-    "relocate_txt": "—",
-    "trees_remove": 10,
-    "palms_remove": 2,
-    "trees_relocate": 0,
-    "palms_relocate": 0,
-    "specimen_remove": null,
-    "specimen_relocate": null,
-    "prohibited": null,
-    "after_the_fact": null,
-    "atf_trees": null,
-    "atf_palms": null,
-    "dead_remove": null,
-    "replacements": "EIGHT(8) Hardwoods to be planted inside the subject property. FIVE(5) Hardwoods on the Right of Way",
-    "tier": "red"
   },
   {
     "address": "1821 SW 19 AV",
