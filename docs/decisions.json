@@ -1,5 +1,22 @@
 [
   {
+    "address": "1810 SW 14 ST",
+    "issued": "",
+    "appeal": "",
+    "appno": "",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1810-SW-14-ST",
+    "reason": "(parse error: Could not fetch https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1810-SW-14-ST.\n  requests: requests got HTTP 403 (len 546)\n  playwright: Page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1810-SW-14-ST\", waiting until \"networkidle\"\n)",
+    "trees_remove": 0,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "replacements": "—",
+    "tier": ""
+  },
+  {
     "address": "40 SW 30 RD",
     "issued": "09/15/2026",
     "appeal": "09/25/2026",
@@ -67,29 +84,6 @@
     "dead_remove": null,
     "replacements": "FIVE (5) Bay Rums, THREE (3) Simpson’s Stoppers, and TWO (2) Sabal Palms to be planted inside the subject property. FOUR(4) Pigeon Plum to be planted on the Right of Way",
     "tier": "yellow"
-  },
-  {
-    "address": "1810 SW 14 ST",
-    "issued": "09/15/2026",
-    "appeal": "09/25/2026",
-    "appno": "BD26-004362-001",
-    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1810-SW-14-ST",
-    "reason": "Trees in the buildable footprint, Prohibited Tree Species",
-    "remove_txt": "ONE (1) Starburst tree, ONE (1) Orange Jasmine tree, ONE (1) Mango tree, ONE (1) Carambola tree, ONE (1) Starburst tree , ONE (1) Areca Palm, ONE (1) Ficus benjamina (Prohibited), ONE (1) Sugar Apple tree, ONE (1) Mamey tree , ONE (1) Mango tree, ONE (1) Mango tree, ONE (1) Sapodilla tree. All located inside the subject property. ONE(1) Brazilian Pepper located on the Right of Way",
-    "relocate_txt": "—",
-    "trees_remove": 12,
-    "palms_remove": 1,
-    "trees_relocate": 0,
-    "palms_relocate": 0,
-    "specimen_remove": null,
-    "specimen_relocate": null,
-    "prohibited": 1,
-    "after_the_fact": null,
-    "atf_trees": null,
-    "atf_palms": null,
-    "dead_remove": null,
-    "replacements": "FIVE(5) Silver Buttonwoods to be planted inside the subject property, ONE(1) Silver Buttonwood to be planted on the Right of Way",
-    "tier": "red"
   },
   {
     "address": "3545 ANCHORAGE WAY",
