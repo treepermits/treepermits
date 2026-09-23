@@ -1,22 +1,5 @@
 [
   {
-    "address": "3528 ROYAL PALM AV",
-    "issued": "",
-    "appeal": "",
-    "appno": "",
-    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION3528-ROYAL-PALM-AV",
-    "reason": "(parse error: Could not fetch https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION3528-ROYAL-PALM-AV.\n  requests: requests got HTTP 403 (len 548)\n  playwright: Page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION3528-ROYAL-PALM-AV\", waiting until \"networkidle\"\n)",
-    "trees_remove": 0,
-    "palms_remove": 0,
-    "trees_relocate": 0,
-    "palms_relocate": 0,
-    "specimen_remove": null,
-    "specimen_relocate": null,
-    "prohibited": null,
-    "replacements": "—",
-    "tier": ""
-  },
-  {
     "address": "86 BAY HEIGHTS DR",
     "issued": "09/22/2026",
     "appeal": "10/02/2026",
@@ -3572,5 +3555,22 @@
     "prohibited": null,
     "replacements": "FIFTYSEVEN(57) hardwood trees and FIFTYTWO(52) palm trees within the lot",
     "tier": "red"
+  },
+  {
+    "address": "3528 ROYAL PALM AV",
+    "issued": "",
+    "appeal": "",
+    "appno": "",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION3528-ROYAL-PALM-AV",
+    "reason": "(parse error: Could not fetch https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION3528-ROYAL-PALM-AV.\n  requests: requests got HTTP 403 (len 548)\n  playwright: Page.goto: Timeout 45000ms exceeded.\nCall log:\n  - navigating to \"https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION3528-ROYAL-PALM-AV\", waiting until \"networkidle\"\n)",
+    "trees_remove": 0,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "replacements": "—",
+    "tier": ""
   }
 ]
