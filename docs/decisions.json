@@ -1,5 +1,28 @@
 [
   {
+    "address": "2171 SW 21 ST",
+    "issued": "10/06/2026",
+    "appeal": "10/16/2026",
+    "appno": "BD26-017255-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-2171-SW-21-ST",
+    "reason": "Palm trees were removed without a permit",
+    "remove_txt": "THREE(3) Coconut palms from the right-of-way in front of the lot",
+    "relocate_txt": "—",
+    "trees_remove": 0,
+    "palms_remove": 3,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "after_the_fact": 3,
+    "atf_trees": null,
+    "atf_palms": 3,
+    "dead_remove": null,
+    "replacements": "ONE(1) hardwood tree within the lot and TWO(2) hardwood trees within the right-of-way in front of the lot",
+    "tier": ""
+  },
+  {
     "address": "340 NW 12 AV",
     "issued": "09/29/2026",
     "appeal": "10/09/2026",
