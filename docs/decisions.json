@@ -1,5 +1,28 @@
 [
   {
+    "address": "3615 SW 1 AV",
+    "issued": "10/20/2026",
+    "appeal": "10/30/2026",
+    "appno": "BD26-007037-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-3615-SW-1-AV",
+    "reason": "Conflict with the proposed construction",
+    "remove_txt": "ONE (1) Mango, ONE (1) Strangler Fig, ONE (1) Gumbo Limbo, ONE (1) Florida Trema and ONE (1) Palm throughout the lot",
+    "relocate_txt": "—",
+    "trees_remove": 4,
+    "palms_remove": 1,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
+    "dead_remove": null,
+    "replacements": "ELEVEN (11) hardwood trees throughout the lot",
+    "tier": "yellow"
+  },
+  {
     "address": "53 NE 50 ST",
     "issued": "10/13/2026",
     "appeal": "10/23/2026",
