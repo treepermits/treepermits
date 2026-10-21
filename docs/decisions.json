@@ -1,5 +1,28 @@
 [
   {
+    "address": "1441 SW 17 ST",
+    "issued": "10/27/2026",
+    "appeal": "11/06/2026",
+    "appno": "BD26-017168-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-1441-SW-17-ST",
+    "reason": "Trees are in conflict with the proposed construction",
+    "remove_txt": "ONE(1) Avocado tree, ONE(1) Mango tree and ONE(10 Brazilian pepper tree (prohibited) from within the lot",
+    "relocate_txt": "—",
+    "trees_remove": 2,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 0,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": 3,
+    "after_the_fact": null,
+    "atf_trees": null,
+    "atf_palms": null,
+    "dead_remove": null,
+    "replacements": "ELEVEN(11) hardwood trees to be planted within the lot",
+    "tier": ""
+  },
+  {
     "address": "3615 SW 1 AV",
     "issued": "10/20/2026",
     "appeal": "10/30/2026",
