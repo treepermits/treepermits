@@ -1,5 +1,28 @@
 [
   {
+    "address": "350 SW 34 AV",
+    "issued": "11/17/2026",
+    "appeal": "11/27/2026",
+    "appno": "BD25-004937-001",
+    "url": "https://www.miami.gov/My-Government/Departments/Building/View-Intended-Decisions-Posted-for-Tree-Permitting/INTENDED-DECISION-350-SW-34-AV",
+    "reason": "After the Fact and Conflict with the proposed construction. Tree(s) Removed without a permit & Location: ONE (1) Mamey tree and TWO (2) Moringa trees throughout the lot",
+    "remove_txt": "ONE (1) Mamey tree and TWO (2) Moringa trees throughout the lot",
+    "relocate_txt": "ONE (1) Coconut palm throughout the lot",
+    "trees_remove": 3,
+    "palms_remove": 0,
+    "trees_relocate": 0,
+    "palms_relocate": 1,
+    "specimen_remove": null,
+    "specimen_relocate": null,
+    "prohibited": null,
+    "after_the_fact": 1,
+    "atf_trees": 1,
+    "atf_palms": null,
+    "dead_remove": null,
+    "replacements": "TEN (10) hardwoods tree throughout the lot and FIVE (5) hardwood in the ROW",
+    "tier": ""
+  },
+  {
     "address": "2293 SW 17 TER",
     "issued": "11/10/2026",
     "appeal": "11/25/2026",
